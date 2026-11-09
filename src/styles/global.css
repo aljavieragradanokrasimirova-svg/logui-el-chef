@@ -1,0 +1,36 @@
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background-color: var(--c-cream);
+  /* Mantel de cuadros muy suave */
+  background-image:
+    linear-gradient(90deg, rgba(232, 81, 58, .06) 50%, transparent 50%),
+    linear-gradient(rgba(232, 81, 58, .06) 50%, transparent 50%);
+  background-size: 40px 40px;
+  color: var(--c-cocoa);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--fs-m);
+  line-height: 1.4;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-title);
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0;
+}
+h1 { font-size: var(--fs-xxl); }
+h2 { font-size: var(--fs-xl); }
+h3 { font-size: var(--fs-l); }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+
+:focus-visible {
+  outline: 3px dashed var(--c-tomato);
+  outline-offset: 3px;
+}

@@ -1,0 +1,50 @@
+:root {
+  /* Paleta */
+  --c-tomato: #E8513A;
+  --c-tomato-dark: #B83A27;
+  --c-butter: #F7D774;
+  --c-butter-soft: #FCEFB4;
+  --c-cream: #FFF8E7;
+  --c-cream-deep: #F6E7C8;
+  --c-cocoa: #4A2E22;
+  --c-cocoa-soft: #7A5A48;
+  --c-mint: #6CC4A1;
+  --c-white: #FFFFFF;
+
+  /* Tipografía */
+  --font-title: 'Baloo 2', 'Nunito', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+  --fs-xxl: 32px;
+  --fs-xl: 24px;
+  --fs-l: 20px;
+  --fs-m: 17px;
+  --fs-s: 14px;
+
+  /* Formas */
+  --line: 3px solid var(--c-cocoa);
+  --r-chip: 12px;
+  --r-card: 20px;
+  --r-pill: 999px;
+  --shadow: 0 4px 0 var(--c-cocoa);
+  --shadow-pressed: 0 1px 0 var(--c-cocoa);
+
+  /* Espaciado */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+
+  /* Movimiento */
+  --ease-bounce: cubic-bezier(.34, 1.56, .64, 1);
+  --dur-fast: 180ms;
+  --dur-med: 260ms;
+
+  --tap: 48px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0ms; --dur-med: 0ms; }
+}
+.reduce-motion { --dur-fast: 0ms; --dur-med: 0ms; }
