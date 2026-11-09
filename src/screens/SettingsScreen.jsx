@@ -5,6 +5,7 @@ import Button from '../components/ui/Button.jsx'
 import Modal, { ModalActions } from '../components/ui/Modal.jsx'
 import { useStore } from '../store/StoreProvider.jsx'
 import { exportBackup, parseBackup } from '../store/storage.js'
+import { useInstallPrompt } from '../pwa/useInstallPrompt.js'
 import '../components/settings/settings.css'
 
 const listCount = (n) => `${n} ${n === 1 ? 'lista' : 'listas'}`
@@ -23,11 +24,18 @@ export default function SettingsScreen() {
   const [dialog, setDialog] = useState(null) // 'replace' | 'delete' | null
   const [error, setError] = useState('')
   const [status, setStatus] = useState('')
+  const { canInstall, installed, install } = useInstallPrompt()
+  const [installStatus, setInstallStatus] = useState('')
 
   const reduceMotion = state.settings.reduceMotion
 
   const toggleMotion = () => {
     actions.updateSettings({ reduceMotion: !reduceMotion })
+  }
+
+  const handleInstall = async () => {
+    const outcome = await install()
+    if (outcome === 'accepted') setInstallStatus('¡Instalada!')
   }
 
   const handleExport = () => {
@@ -69,6 +77,30 @@ export default function SettingsScreen() {
           <p>Tu navegador no deja guardar los datos. Exporta una copia para no perderlos.</p>
         </Card>
       )}
+
+      <Card className="settings-card">
+        <h2>Instalar</h2>
+        {installStatus ? (
+          // Fuera de las otras ramas: install() pone canInstall a false antes de devolver el resultado.
+          <p className="settings-install-status" role="status">
+            {installStatus}
+          </p>
+        ) : installed ? (
+          <p>Logui ya está instalada en este dispositivo.</p>
+        ) : canInstall ? (
+          <>
+            <p>Añádela a tu pantalla de inicio para abrirla como una app, también sin conexión.</p>
+            <Button variant="primary" className="settings-install" onClick={handleInstall}>
+              Instalar la app
+            </Button>
+          </>
+        ) : (
+          <p className="settings-install-hint">
+            Para instalarla, usa la opción «Añadir a pantalla de inicio» o «Instalar» del menú de tu
+            navegador.
+          </p>
+        )}
+      </Card>
 
       <Card className="settings-card">
         <h2>Animaciones</h2>
