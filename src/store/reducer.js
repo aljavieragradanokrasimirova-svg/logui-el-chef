@@ -9,6 +9,7 @@ import {
   toggleItem,
 } from '../domain/lists.js'
 import { rememberProduct } from '../domain/products.js'
+import { normalizeRecipe, scaleIngredients, addIngredientsToList } from '../domain/recipes.js'
 import { emptyState, sanitizeState } from './storage.js'
 
 /**
@@ -40,6 +41,10 @@ function updateList(state, listId, change) {
 function remember(state, product, now) {
   const productMemory = rememberProduct(state.productMemory, product, { now })
   return productMemory === state.productMemory ? state : { ...state, productMemory }
+}
+
+function rememberAll(state, products, now) {
+  return products.reduce((s, p) => remember(s, p, now), state)
 }
 
 function findItem(state, listId, itemId) {
@@ -81,6 +86,25 @@ function apply(state, action) {
       return updateList(state, action.listId, (l) => removeItem(l, action.itemId))
     case 'item/toggle':
       return updateList(state, action.listId, (l) => toggleItem(l, action.itemId, { now }))
+    case 'recipe/save': {
+      const recipe = normalizeRecipe(action.recipe, { makeId: idsFrom(seed) })
+      const index = state.recipes.findIndex((r) => r.id === recipe.id)
+      const recipes = state.recipes.slice()
+      if (index === -1) recipes.push(recipe)
+      else recipes[index] = recipe
+      return rememberAll({ ...state, recipes }, recipe.ingredients, now)
+    }
+    case 'recipe/delete': {
+      const recipes = state.recipes.filter((r) => r.id !== action.recipeId)
+      return recipes.length === state.recipes.length ? state : { ...state, recipes }
+    }
+    case 'recipe/addToList': {
+      const recipe = state.recipes.find((r) => r.id === action.recipeId)
+      if (!recipe) return state
+      const ingredients = scaleIngredients(recipe, action.servings)
+      const next = updateList(state, action.listId, (l) => addIngredientsToList(l, ingredients, { makeId: idsFrom(seed) }))
+      return next === state ? state : rememberAll(next, ingredients, now)
+    }
     case 'settings/update':
       return { ...state, settings: { ...state.settings, ...action.changes } }
     case 'state/replace':
@@ -122,6 +146,13 @@ export function createActions(dispatch, { clock = () => new Date().toISOString()
     removeItem: (listId, itemId) => void send({ type: 'item/remove', listId, itemId }),
     toggleItem: (listId, itemId) => void send({ type: 'item/toggle', listId, itemId }),
     updateSettings: (changes) => void send({ type: 'settings/update', changes }),
+    /** Crea o guarda una receta (conserva `recipe.id` si lo trae). Devuelve su id. */
+    saveRecipe: (recipe) => {
+      const seed = send({ type: 'recipe/save', recipe })
+      return typeof recipe.id === 'string' && recipe.id !== '' ? recipe.id : seed
+    },
+    deleteRecipe: (recipeId) => void send({ type: 'recipe/delete', recipeId }),
+    addRecipeToList: (recipeId, listId, servings) => void send({ type: 'recipe/addToList', recipeId, listId, servings }),
     replaceState: (state) => void send({ type: 'state/replace', state }),
     resetState: () => void send({ type: 'state/reset' }),
   }

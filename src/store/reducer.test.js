@@ -107,3 +107,66 @@ describe('reducer', () => {
     expect(reducer(s, { type: 'nada' })).toBe(s)
   })
 })
+
+describe('recetas', () => {
+  const tortilla = {
+    name: 'Tortilla',
+    servings: 4,
+    tags: ['cena'],
+    ingredients: [
+      { name: 'Huevos', quantity: 6, unit: 'ud', categoryId: 'lacteos' },
+      { name: 'Patatas', quantity: 0.75, unit: 'kg', categoryId: 'frutas' },
+    ],
+    steps: ['Batir'],
+  }
+
+  it('guarda una receta nueva, recuerda sus ingredientes y devuelve su id', () => {
+    const { state, results } = run((a) => a.saveRecipe(tortilla))
+    expect(results).toBe('s1')
+    expect(state.recipes).toHaveLength(1)
+    expect(state.recipes[0]).toMatchObject({ id: 's1', name: 'Tortilla', servings: 4 })
+    expect(state.recipes[0].ingredients.map((i) => i.id)).toEqual(['s1-2', 's1-3'])
+    expect(Object.keys(state.productMemory).sort()).toEqual(['huevos', 'patatas'])
+  })
+
+  it('guardar con id existente sustituye la receta', () => {
+    const { state } = run((a) => {
+      const id = a.saveRecipe(tortilla)
+      a.saveRecipe({ ...tortilla, id, name: 'Tortilla de patatas' })
+    })
+    expect(state.recipes).toHaveLength(1)
+    expect(state.recipes[0].name).toBe('Tortilla de patatas')
+  })
+
+  it('borra recetas', () => {
+    const { state } = run((a) => a.deleteRecipe(a.saveRecipe(tortilla)))
+    expect(state.recipes).toEqual([])
+  })
+
+  it('añade a una lista escalando y fusionando', () => {
+    const { state } = run((a) => {
+      const listId = a.createList('Súper')
+      a.addItem(listId, { name: 'Huevos', quantity: 2, unit: 'ud', categoryId: 'lacteos' })
+      const recipeId = a.saveRecipe(tortilla)
+      a.addRecipeToList(recipeId, listId, 2)
+    })
+    expect(state.lists[0].items.map((i) => [i.name, i.quantity, i.unit])).toEqual([
+      ['Huevos', 5, 'ud'],
+      ['Patatas', 0.38, 'kg'],
+    ])
+  })
+
+  it('no hace nada con receta o lista inexistentes, o lista archivada', () => {
+    const { state } = run((a, get) => {
+      const listId = a.createList('Súper')
+      const recipeId = a.saveRecipe(tortilla)
+      a.archiveList(listId)
+      const before = get()
+      a.addRecipeToList('nada', listId, 2)
+      a.addRecipeToList(recipeId, 'nada', 2)
+      a.addRecipeToList(recipeId, listId, 2)
+      expect(get()).toBe(before)
+    })
+    expect(state.lists[0].items).toEqual([])
+  })
+})
