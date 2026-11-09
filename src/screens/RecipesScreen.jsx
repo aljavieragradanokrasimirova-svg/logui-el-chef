@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import ScreenHeader from '../components/ui/ScreenHeader.jsx'
 import UiIcon from '../components/icons/UiIcon.jsx'
-import { Icon } from '../components/icons/CategoryIcon.jsx'
+import Logui from '../mascot/Logui.jsx'
 import RecipeCard from '../components/recipes/RecipeCard.jsx'
 import { useStore } from '../store/StoreProvider.jsx'
 import { allTags, filterByTag } from '../domain/recipes.js'
@@ -60,12 +60,13 @@ export default function RecipesScreen() {
 
       {state.recipes.length === 0 ? (
         <div className="empty">
-          <Icon icon="pot" size={72} />
+          <Logui mood="think" size={110} />
           <p>Tu libro de recetas está vacío.</p>
           <Link to="/recetas/nueva" className="btn btn--primary">Crear receta</Link>
         </div>
       ) : recipes.length === 0 ? (
         <div className="empty">
+          <Logui mood="think" size={90} />
           <p>No hay recetas con esa etiqueta.</p>
         </div>
       ) : (

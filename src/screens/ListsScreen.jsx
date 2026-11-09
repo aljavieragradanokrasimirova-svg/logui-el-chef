@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import ScreenHeader from '../components/ui/ScreenHeader.jsx'
 import Button from '../components/ui/Button.jsx'
 import UiIcon from '../components/icons/UiIcon.jsx'
-import CategoryIcon from '../components/icons/CategoryIcon.jsx'
+import Logui from '../mascot/Logui.jsx'
 import RenameModal from '../components/lists/RenameModal.jsx'
 import ListCard from '../components/lists/ListCard.jsx'
 import { useStore } from '../store/StoreProvider.jsx'
@@ -38,7 +38,7 @@ export default function ListsScreen() {
         </>
       ) : (
         <div className="empty">
-          <CategoryIcon categoryId="otros" size={72} />
+          <Logui mood="think" size={110} />
           <p>Todavía no tienes listas.</p>
           {createButton}
         </div>

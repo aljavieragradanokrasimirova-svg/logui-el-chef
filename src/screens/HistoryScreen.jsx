@@ -5,6 +5,7 @@ import Button from '../components/ui/Button.jsx'
 import Modal, { ModalActions } from '../components/ui/Modal.jsx'
 import UiIcon from '../components/icons/UiIcon.jsx'
 import ListCard from '../components/lists/ListCard.jsx'
+import Logui from '../mascot/Logui.jsx'
 import { useStore } from '../store/StoreProvider.jsx'
 import '../components/lists/lists.css'
 
@@ -43,6 +44,7 @@ export default function HistoryScreen() {
         ))
       ) : (
         <div className="empty">
+          <Logui mood="idle" size={110} />
           <p>Aquí aparecerán las listas que archives.</p>
         </div>
       )}
