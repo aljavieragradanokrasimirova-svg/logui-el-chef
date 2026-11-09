@@ -44,6 +44,7 @@
   --dur-med: 260ms;
 
   --tap: 48px;
+  --tabbar-h: 68px;
 }
 
 @media (prefers-reduced-motion: reduce) {

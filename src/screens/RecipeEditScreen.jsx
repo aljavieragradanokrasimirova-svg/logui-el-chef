@@ -4,13 +4,15 @@ import ScreenHeader from '../components/ui/ScreenHeader.jsx'
 import Button from '../components/ui/Button.jsx'
 import Modal, { ModalActions } from '../components/ui/Modal.jsx'
 import UiIcon from '../components/icons/UiIcon.jsx'
-import { Icon } from '../components/icons/CategoryIcon.jsx'
+import CategoryIcon, { Icon } from '../components/icons/CategoryIcon.jsx'
+import ItemFields from '../components/pickers/ItemFields.jsx'
 import { useStore } from '../store/StoreProvider.jsx'
 import { ICON_IDS_RECIPE, DEFAULT_RECIPE_ICON } from '../domain/recipes.js'
 import { suggestProducts } from '../domain/products.js'
 import { normalizeName } from '../domain/normalize.js'
-import { CATEGORIES, DEFAULT_CATEGORY } from '../data/categories.js'
-import { UNITS, DEFAULT_UNIT } from '../data/units.js'
+import { CATEGORY_BY_ID, DEFAULT_CATEGORY } from '../data/categories.js'
+import { DEFAULT_UNIT } from '../data/units.js'
+import { formatQuantity } from '../domain/format.js'
 import '../components/recipes/recipe-detail.css'
 
 const ICON_LABELS = { pot: 'Olla', pan: 'Sartén', salad: 'Ensalada', cake: 'Tarta', soup: 'Sopa', pasta: 'Pasta' }
@@ -43,13 +45,13 @@ function toRows(recipe) {
     key: i.id,
     id: i.id,
     name: i.name,
-    quantity: i.quantity == null ? '' : String(i.quantity).replace('.', ','),
+    quantity: i.quantity,
     unit: i.unit,
     categoryId: i.categoryId,
   }))
 }
 
-const emptyRow = () => ({ key: rowKey(), name: '', quantity: '', unit: DEFAULT_UNIT, categoryId: DEFAULT_CATEGORY })
+const emptyRow = () => ({ key: rowKey(), name: '', quantity: null, unit: DEFAULT_UNIT, categoryId: DEFAULT_CATEGORY })
 
 function RecipeForm({ recipe }) {
   const navigate = useNavigate()
@@ -62,6 +64,8 @@ function RecipeForm({ recipe }) {
   const [rows, setRows] = useState(() => (editing ? toRows(recipe) : [emptyRow()]))
   const [steps, setSteps] = useState(() => (recipe?.steps.length ? recipe.steps : ['']))
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [detailsKey, setDetailsKey] = useState(null) // fila cuyo pasillo/cantidad/unidad se está editando
+  const detailsRow = rows.find((r) => r.key === detailsKey) ?? null
   const lastRowRef = useRef(null)
 
   const updateRow = (key, changes) => setRows((rs) => rs.map((r) => (r.key === key ? { ...r, ...changes } : r)))
@@ -144,20 +148,18 @@ function RecipeForm({ recipe }) {
                 onBlur={() => autofill(row)}
                 autoComplete="off"
               />
-              <input
-                className="field ingredient-row__qty"
-                aria-label={`Cantidad del ingrediente ${i + 1}`}
-                inputMode="decimal"
-                placeholder="—"
-                value={row.quantity}
-                onChange={(e) => updateRow(row.key, { quantity: e.target.value })}
-              />
-              <select className="field ingredient-row__unit" aria-label={`Unidad del ingrediente ${i + 1}`} value={row.unit} onChange={(e) => updateRow(row.key, { unit: e.target.value })}>
-                {UNITS.map((u) => <option key={u.id} value={u.id}>{u.short}</option>)}
-              </select>
-              <select className="field ingredient-row__cat" aria-label={`Categoría del ingrediente ${i + 1}`} value={row.categoryId} onChange={(e) => updateRow(row.key, { categoryId: e.target.value })}>
-                {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
-              </select>
+              <button
+                type="button"
+                className="ingredient-row__details"
+                style={{ '--tile-color': CATEGORY_BY_ID[row.categoryId].color }}
+                aria-label={`Pasillo y cantidad del ingrediente ${i + 1}`}
+                onClick={() => setDetailsKey(row.key)}
+              >
+                <CategoryIcon categoryId={row.categoryId} size={24} />
+                <span>{CATEGORY_BY_ID[row.categoryId].short}</span>
+                <span className="ingredient-row__qty">{formatQuantity(row.quantity, row.unit) || 'sin cantidad'}</span>
+                <UiIcon name="pencil" size={18} />
+              </button>
               <button type="button" className="ingredient-row__remove" aria-label={`Quitar ingrediente ${i + 1}`} onClick={() => setRows((rs) => rs.filter((r) => r.key !== row.key))}>
                 <UiIcon name="close" size={20} />
               </button>
@@ -195,6 +197,22 @@ function RecipeForm({ recipe }) {
           <Button variant="primary" type="submit" disabled={!name.trim()}>Guardar receta</Button>
         </div>
       </form>
+
+      <Modal
+        open={Boolean(detailsRow)}
+        onClose={() => setDetailsKey(null)}
+        title={detailsRow?.name.trim() || 'Ingrediente'}
+        variant="sheet"
+      >
+        {detailsRow && (
+          <>
+            <ItemFields value={detailsRow} onChange={(changes) => updateRow(detailsRow.key, changes)} />
+            <ModalActions>
+              <Button variant="primary" onClick={() => setDetailsKey(null)}>Listo</Button>
+            </ModalActions>
+          </>
+        )}
+      </Modal>
 
       <Modal open={confirmDelete} onClose={() => setConfirmDelete(false)} title="¿Borrar la receta?">
         <p style={{ margin: 0 }}>Se borrará «{recipe?.name}». No se puede deshacer.</p>

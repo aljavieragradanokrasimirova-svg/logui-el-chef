@@ -1,70 +1,4 @@
-/* ---------- Añadir producto ---------- */
-.add-item { display: grid; gap: var(--sp-2); }
-.add-item__row { display: flex; gap: var(--sp-3); align-items: flex-start; }
-.add-item__combo { position: relative; flex: 1; min-width: 0; }
-.add-item__toggle {
-  justify-self: start;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  min-height: 36px;
-  padding: 0 var(--sp-2);
-  border: none;
-  background: none;
-  color: var(--c-cocoa-soft);
-  font-size: var(--fs-s);
-  font-weight: 700;
-  cursor: pointer;
-}
-.add-item__toggle-hint { text-decoration: underline; text-underline-offset: 3px; }
-.add-item__details {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--sp-3);
-  padding: var(--sp-3);
-  border: var(--line);
-  border-radius: var(--r-card);
-  background: var(--c-cream-deep);
-}
-.add-item__category { grid-column: 1 / -1; }
-
-.suggestions {
-  position: absolute;
-  z-index: 5;
-  top: calc(100% + var(--sp-2));
-  left: 0;
-  right: 0;
-  margin: 0;
-  padding: var(--sp-1);
-  list-style: none;
-  border: var(--line);
-  border-radius: var(--r-card);
-  background: var(--c-white);
-  box-shadow: var(--shadow);
-}
-.suggestions__item {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-  min-height: var(--tap);
-  padding: 0 var(--sp-3);
-  border-radius: var(--r-chip);
-  cursor: pointer;
-}
-.suggestions__item:hover,
-.suggestions__item--active { background: var(--c-butter-soft); }
-.suggestions__name { flex: 1; min-width: 0; overflow-wrap: break-word; }
-.suggestions__tag {
-  padding: 0 var(--sp-2);
-  border-radius: var(--r-pill);
-  background: var(--c-cream-deep);
-  color: var(--c-cocoa-soft);
-  font-size: var(--fs-s);
-}
-
 /* ---------- Progreso y avisos ---------- */
-.list-progress { display: grid; gap: var(--sp-1); }
-.list-progress__text { font-size: var(--fs-s); color: var(--c-cocoa-soft); font-weight: 700; }
 .list-banner { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); justify-content: space-between; }
 .list-banner p { margin: 0; flex: 1 1 200px; }
 .list-banner--done { animation: banner-pop var(--dur-med) var(--ease-bounce); flex-wrap: nowrap; }
@@ -197,4 +131,58 @@
   color: var(--c-cocoa-soft);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* ---------- Panel de añadir ---------- */
+.add-sheet { display: grid; gap: var(--sp-4); }
+.add-sheet__name { display: grid; gap: var(--sp-2); }
+.field--big { min-height: 56px; font-size: var(--fs-l); }
+.add-sheet__suggestions { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: 0; padding: 0; list-style: none; }
+.suggestion {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 44px;
+  padding: 0 var(--sp-3) 0 var(--sp-2);
+  border: var(--line);
+  border-radius: var(--r-pill);
+  background: var(--c-white);
+  font-weight: 800;
+  cursor: pointer;
+}
+.suggestion:active { background: var(--c-butter-soft); }
+.suggestion__tag { font-size: var(--fs-s); font-weight: 700; color: var(--c-cocoa-soft); }
+.add-sheet__status { min-height: 1.4em; margin: 0; font-size: var(--fs-s); font-weight: 800; color: var(--c-cocoa-soft); }
+.add-sheet__actions { display: grid; grid-template-columns: 1fr 2fr; gap: var(--sp-3); }
+
+/* ---------- Botón flotante ---------- */
+.fab {
+  position: fixed;
+  right: max(var(--sp-4), calc(50vw - 280px + var(--sp-4)));
+  bottom: calc(var(--tabbar-h) + var(--sp-4) + env(safe-area-inset-bottom));
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 60px;
+  padding: 0 var(--sp-5) 0 var(--sp-4);
+  border: var(--line);
+  border-radius: var(--r-pill);
+  background: var(--c-butter);
+  box-shadow: 0 5px 0 var(--c-cocoa);
+  font-family: var(--font-title);
+  font-size: var(--fs-l);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-bounce), box-shadow var(--dur-fast) ease;
+}
+.fab:active { transform: translateY(4px); box-shadow: var(--shadow-pressed); }
+.add-sheet__actions,
+.modal--sheet .modal__actions {
+  position: sticky;
+  bottom: calc(-1 * (var(--sp-4) + env(safe-area-inset-bottom)));
+  z-index: 2;
+  margin: 0 calc(-1 * var(--sp-4));
+  padding: var(--sp-3) var(--sp-4) calc(var(--sp-4) + env(safe-area-inset-bottom));
+  background: var(--c-cream);
+  border-top: 2px dashed var(--c-cream-deep);
 }

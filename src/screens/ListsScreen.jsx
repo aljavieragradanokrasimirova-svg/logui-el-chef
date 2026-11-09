@@ -27,7 +27,7 @@ export default function ListsScreen() {
 
   return (
     <main className="screen">
-      <ScreenHeader title="Mis listas" backTo="/" />
+      <ScreenHeader title="Mis listas" mascot="idle" />
 
       {active.length > 0 ? (
         <>

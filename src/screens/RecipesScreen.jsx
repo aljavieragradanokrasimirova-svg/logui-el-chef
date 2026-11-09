@@ -21,15 +21,19 @@ export default function RecipesScreen() {
 
   return (
     <main className="screen">
-      <ScreenHeader title="Recetas" backTo="/">
-        <Link
-          to="/recetas/nueva"
-          className="btn btn--round btn--small btn--primary"
-          aria-label="Nueva receta"
-        >
-          <UiIcon name="plus" />
-        </Link>
-      </ScreenHeader>
+      <ScreenHeader
+        title="Recetas"
+        mascot="idle"
+        actions={
+          <Link
+            to="/recetas/nueva"
+            className="btn btn--round btn--small btn--accent"
+            aria-label="Nueva receta"
+          >
+            <UiIcon name="plus" />
+          </Link>
+        }
+      />
 
       {tags.length > 0 && (
         <div className="recipes-filters">
