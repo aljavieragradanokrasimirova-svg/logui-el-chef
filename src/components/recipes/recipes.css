@@ -1,9 +1,8 @@
-/* ---------- Tarjeta de receta ---------- */
+/* ---------- Baldosa de receta ---------- */
 .recipe-card {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-  padding: var(--sp-3);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
   border: var(--line);
   border-radius: var(--r-card);
   box-shadow: var(--shadow);
@@ -13,32 +12,46 @@
   transition: transform var(--dur-fast) var(--ease-bounce), box-shadow var(--dur-fast) ease;
 }
 .recipe-card:active { transform: translateY(3px); box-shadow: var(--shadow-pressed); }
-.recipe-card__icon {
+.recipe-card__art {
+  position: relative;
   display: grid;
   place-items: center;
-  flex: none;
-  width: 76px;
-  height: 76px;
-  border: var(--line);
+  height: 96px;
+  border-bottom: var(--line);
+  background-color: var(--recipe-color);
+  background-image: radial-gradient(var(--c-white) 1.5px, transparent 1.6px);
+  background-size: 14px 14px;
+}
+.recipe-card__art svg { transition: transform var(--dur-med) var(--ease-bounce); }
+.recipe-card:hover .recipe-card__art svg { transform: rotate(-6deg) scale(1.06); }
+.recipe-card__servings {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  padding: 0 var(--sp-2);
+  border: 2px solid var(--c-cocoa);
   border-radius: var(--r-pill);
-  background: var(--c-butter-soft);
+  background: var(--c-white);
+  font-size: 12px;
+  font-weight: 800;
 }
-.recipe-card__body {
-  display: grid;
-  gap: var(--sp-1);
-  flex: 1;
-  min-width: 0;
-}
+.recipe-card__body { display: grid; align-content: start; gap: var(--sp-1); padding: var(--sp-2) var(--sp-3) var(--sp-3); min-width: 0; }
 .recipe-card__name {
   font-family: var(--font-title);
-  font-weight: 800;
-  font-size: var(--fs-l);
-  line-height: 1.1;
+  font-size: var(--fs-m);
+  line-height: 1.15;
   overflow-wrap: break-word;
 }
 .recipe-card__meta { font-size: var(--fs-s); font-weight: 700; color: var(--c-cocoa-soft); }
 .recipe-card__tags { display: flex; flex-wrap: wrap; gap: var(--sp-1); }
-.recipe-card__tag { min-height: 26px; padding: 0 var(--sp-2); }
+.recipe-card__tag {
+  padding: 0 var(--sp-2);
+  border: 2px solid var(--c-cocoa);
+  border-radius: var(--r-pill);
+  background: var(--c-butter-soft);
+  font-size: 12px;
+  font-weight: 800;
+}
 
 /* ---------- Pantalla de recetas ---------- */
 .recipes-filters {
@@ -67,4 +80,4 @@
 .recipes-filter:active { transform: translateY(3px); }
 .recipes-filter--active { background: var(--c-butter); }
 
-.recipes-list { display: grid; gap: var(--sp-3); }
+.recipes-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--sp-3); }

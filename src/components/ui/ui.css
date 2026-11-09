@@ -194,6 +194,9 @@ select.field { padding-right: var(--sp-2); }
   border-bottom: none;
 }
 .hero--mascot { padding-right: 100px; }
+/* Con chapitas o barra debajo, Logui solo ocupa la parte baja: el título usa todo el ancho */
+.hero--mascot:has(.hero__body) { padding-right: var(--sp-4); }
+.hero--mascot .hero__body { padding-right: 84px; }
 .hero__top { display: flex; align-items: center; gap: var(--sp-3); min-height: var(--tap); }
 .hero__back { flex: none; color: var(--c-cocoa); }
 .hero__title {
@@ -204,7 +207,6 @@ select.field { padding-right: var(--sp-2); }
   text-shadow: 0 2px 0 var(--c-tomato-dark);
 }
 .hero__actions { display: flex; gap: var(--sp-2); flex: none; color: var(--c-cocoa); }
-.hero--mascot .hero__actions { margin-right: calc(-100px + var(--sp-4)); position: relative; z-index: 2; }
 .hero__body { display: grid; gap: var(--sp-3); }
 .hero__logui { position: absolute; right: var(--sp-3); bottom: 4px; z-index: 1; }
 .hero--mascot .hero__top { padding-right: 0; }
@@ -270,3 +272,14 @@ select.field { padding-right: var(--sp-2); }
 .hero .btn, .hero a.btn { color: var(--c-cocoa); }
 .hero a.btn--primary { color: var(--c-white); }
 .modal--sheet { overflow-y: auto; overscroll-behavior: contain; }
+
+/* ---------- Esfera de progreso ---------- */
+.ring { position: relative; display: inline-grid; place-items: center; flex: none; }
+.ring svg { position: absolute; inset: 0; overflow: visible; }
+.ring__track { fill: var(--c-cream-deep); stroke: var(--c-cream-deep); stroke-width: 8; }
+.ring__fill { fill: none; stroke: var(--c-butter); stroke-width: 8; stroke-linecap: round; transition: stroke-dasharray var(--dur-med) var(--ease-bounce); }
+.ring__edge { fill: none; stroke: var(--c-cocoa); stroke-width: 3; }
+.ring__text { position: relative; font-family: var(--font-title); font-size: var(--fs-s); line-height: 1; }
+.ring--done .ring__track { fill: var(--c-mint); stroke: var(--c-mint); }
+.ring--done .ring__fill { stroke: var(--c-mint); }
+.ring--done .ring__text { color: var(--c-white); }
