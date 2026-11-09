@@ -7,7 +7,7 @@ import Card from '../components/ui/Card.jsx'
 import Modal, { ModalActions } from '../components/ui/Modal.jsx'
 import UiIcon from '../components/icons/UiIcon.jsx'
 import CategoryIcon from '../components/icons/CategoryIcon.jsx'
-import AddItemForm from '../components/lists/AddItemForm.jsx'
+import AddItemSheet from '../components/lists/AddItemSheet.jsx'
 import ItemRow from '../components/lists/ItemRow.jsx'
 import EditItemModal from '../components/lists/EditItemModal.jsx'
 import RenameModal from '../components/lists/RenameModal.jsx'
@@ -26,6 +26,7 @@ export default function ListDetailScreen() {
   const list = state.lists.find((l) => l.id === listId)
   const [editingId, setEditingId] = useState(null)
   const [dialog, setDialog] = useState(null) // 'menu' | 'rename' | 'delete' | null
+  const [adding, setAdding] = useState(false)
 
   const pendingNames = useMemo(
     () => (list ? list.items.filter((i) => !i.checked).map((i) => i.name) : []),
@@ -59,18 +60,27 @@ export default function ListDetailScreen() {
 
   return (
     <main className="screen">
-      <ScreenHeader title={list.name} backTo={backTo}>
-        <Button round size="small" aria-label="Opciones de la lista" onClick={() => setDialog('menu')}>
-          <UiIcon name="more" />
-        </Button>
+      <ScreenHeader
+        title={list.name}
+        backTo={backTo}
+        mascot={complete ? 'celebrate' : 'idle'}
+        actions={
+          <Button round size="small" aria-label="Opciones de la lista" onClick={() => setDialog('menu')}>
+            <UiIcon name="more" />
+          </Button>
+        }
+      >
+        <div className="hero-badges">
+          <span className="hero-badge">{total === 0 ? 'Sin productos' : `${checked} de ${total}`}</span>
+          {groups.length > 0 && (
+            <span className="hero-badge hero-badge--butter">
+              {groups.length} {groups.length === 1 ? 'pasillo' : 'pasillos'}
+            </span>
+          )}
+          {archived && <span className="hero-badge hero-badge--mint">Archivada</span>}
+        </div>
+        {total > 0 && <ProgressBar value={checked} max={total} label="Productos comprados" />}
       </ScreenHeader>
-
-      <div className="list-progress">
-        <ProgressBar value={checked} max={total} label="Productos comprados" />
-        <span className="list-progress__text">
-          {total === 0 ? 'Sin productos' : `${checked} de ${total} comprados`}
-        </span>
-      </div>
 
       {archived ? (
         <Card tone="butter" className="list-banner">
@@ -79,13 +89,7 @@ export default function ListDetailScreen() {
             <UiIcon name="reuse" size={20} /> Usar de nuevo
           </Button>
         </Card>
-      ) : (
-        <AddItemForm
-          memory={state.productMemory}
-          exclude={pendingNames}
-          onAdd={(item) => actions.addItem(list.id, item)}
-        />
-      )}
+      ) : null}
 
       {complete && !archived && (
         <Card tone="butter" className="list-banner list-banner--done">
@@ -100,7 +104,7 @@ export default function ListDetailScreen() {
       {total === 0 && !archived && (
         <div className="empty">
           <Logui mood="think" size={100} />
-          <p>La lista está vacía. Escribe arriba tu primer producto.</p>
+          <p>La lista está vacía. Pulsa «Añadir» para apuntar el primer producto.</p>
         </div>
       )}
 
@@ -171,6 +175,19 @@ export default function ListDetailScreen() {
           </Button>
         </ModalActions>
       </Modal>
+      {!archived && (
+        <button type="button" className="fab" onClick={() => setAdding(true)}>
+          <UiIcon name="plus" /> Añadir
+        </button>
+      )}
+
+      <AddItemSheet
+        open={adding}
+        onClose={() => setAdding(false)}
+        memory={state.productMemory}
+        exclude={pendingNames}
+        onAdd={(item) => actions.addItem(list.id, item)}
+      />
     </main>
   )
 }

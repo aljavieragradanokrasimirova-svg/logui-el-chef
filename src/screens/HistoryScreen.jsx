@@ -20,7 +20,7 @@ export default function HistoryScreen() {
 
   return (
     <main className="screen">
-      <ScreenHeader title="Historial" backTo="/" />
+      <ScreenHeader title="Historial" backTo="/listas" backLabel="Volver a mis listas" />
 
       {archived.length > 0 ? (
         archived.map((list) => (

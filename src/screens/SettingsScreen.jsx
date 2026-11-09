@@ -70,7 +70,7 @@ export default function SettingsScreen() {
 
   return (
     <main className="screen">
-      <ScreenHeader title="Ajustes" backTo="/" />
+      <ScreenHeader title="Ajustes" />
 
       {saveFailed && (
         <Card tone="butter" className="settings-notice">

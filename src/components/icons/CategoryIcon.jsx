@@ -124,6 +124,35 @@ export const ICONS = {
       <path style={fill('mint')} d="M26 15c2-4 7-4 9-1-2 3-6 4-9 1Z" />
     </>
   ),
+  // ---- Pestañas ----
+  fridge: (
+    <>
+      <rect style={fill('white')} x="11" y="4" width="26" height="40" rx="6" />
+      <path style={NONE} d="M11 18h26" />
+      <path style={NONE} d="M31 9v5M31 23v9" />
+      <circle style={fill('tomato')} cx="18" cy="11" r="2.5" />
+      <rect style={fill('butter')} x="16" y="24" width="10" height="12" rx="1.5" />
+    </>
+  ),
+  book: (
+    <>
+      <path style={fill('tomato')} d="M10 7a3 3 0 0 1 3-3h24v36H13a3 3 0 0 0-3 3Z" />
+      <path style={fill('white')} d="M10 43a3 3 0 0 1 3-3h24v4H13a3 3 0 0 1-3-1Z" />
+      <rect style={fill('white')} x="17" y="12" width="14" height="9" rx="2" />
+      <path style={fill('butter')} d="M30 4v14l3-3 3 3V4Z" />
+    </>
+  ),
+  radio: (
+    <>
+      <path style={NONE} d="m32 16 8-11" />
+      <circle style={fill('tomato')} cx="40" cy="5" r="2.5" />
+      <rect style={fill('butter')} x="5" y="16" width="38" height="26" rx="7" />
+      <circle style={fill('white')} cx="17" cy="29" r="7" />
+      <rect style={fill('white')} x="28" y="22" width="11" height="6" rx="3" />
+      <circle style={fill('tomato')} cx="31" cy="35" r="2.5" />
+      <circle style={fill('tomato')} cx="37" cy="35" r="2.5" />
+    </>
+  ),
 }
 
 export const ICON_IDS = Object.keys(ICONS)

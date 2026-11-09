@@ -7,6 +7,7 @@ import RecipesScreen from './screens/RecipesScreen.jsx'
 import RecipeDetailScreen from './screens/RecipeDetailScreen.jsx'
 import RecipeEditScreen from './screens/RecipeEditScreen.jsx'
 import SettingsScreen from './screens/SettingsScreen.jsx'
+import TabBar from './components/ui/TabBar.jsx'
 
 /**
  * Rutas de la app. HashRouter para que funcione en cualquier hosting estático (y como PWA) sin configurar
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/ajustes" element={<SettingsScreen />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <TabBar />
     </HashRouter>
   )
 }

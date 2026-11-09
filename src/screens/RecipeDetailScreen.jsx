@@ -41,11 +41,15 @@ function RecipeDetail({ recipe }) {
 
   return (
     <main className="screen">
-      <ScreenHeader title={recipe.name} backTo="/recetas">
-        <Link to={`/recetas/${recipe.id}/editar`} className="btn btn--round btn--small" aria-label="Editar receta">
-          <UiIcon name="pencil" />
-        </Link>
-      </ScreenHeader>
+      <ScreenHeader
+        title={recipe.name}
+        backTo="/recetas"
+        actions={
+          <Link to={`/recetas/${recipe.id}/editar`} className="btn btn--round btn--small" aria-label="Editar receta">
+            <UiIcon name="pencil" />
+          </Link>
+        }
+      />
 
       <section className="recipe-hero">
         <span className="recipe-hero__icon"><Icon icon={recipe.iconId} size={88} /></span>

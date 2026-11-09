@@ -101,10 +101,10 @@
 
 .ingredient-row {
   display: grid;
-  grid-template-columns: 1fr 72px 84px var(--tap);
+  grid-template-columns: 1fr var(--tap);
   grid-template-areas:
-    'name name name remove'
-    'qty unit cat cat';
+    'name remove'
+    'details details';
   gap: var(--sp-2);
   padding: var(--sp-3);
   border: var(--line);
@@ -112,9 +112,21 @@
   background: var(--c-cream-deep);
 }
 .ingredient-row__name { grid-area: name; }
-.ingredient-row__qty { grid-area: qty; padding: 0 var(--sp-2); }
-.ingredient-row__unit { grid-area: unit; }
-.ingredient-row__cat { grid-area: cat; }
+.ingredient-row__details {
+  grid-area: details;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--tap);
+  padding: 0 var(--sp-3);
+  border: var(--line);
+  border-radius: var(--r-pill);
+  background: var(--tile-color);
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+.ingredient-row__qty { margin-left: auto; padding: 0 var(--sp-2); border-radius: var(--r-pill); background: var(--c-white); font-size: var(--fs-s); }
 .ingredient-row__remove {
   grid-area: remove;
   width: var(--tap);
