@@ -6,9 +6,12 @@ import '@fontsource/nunito/700.css'
 import './styles/tokens.css'
 import './styles/global.css'
 import App from './App.jsx'
+import { StoreProvider } from './store/StoreProvider.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <StoreProvider>
+      <App />
+    </StoreProvider>
   </StrictMode>,
 )
