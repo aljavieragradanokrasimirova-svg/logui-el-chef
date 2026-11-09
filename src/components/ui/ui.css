@@ -90,7 +90,7 @@ select.field { padding-right: var(--sp-2); }
   flex: 1;
   min-width: 0;
   font-size: var(--fs-xl);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 .screen-header__actions { display: flex; gap: var(--sp-2); flex: none; }
 
