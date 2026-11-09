@@ -70,6 +70,12 @@ describe('toQuantity', () => {
     ['0.25', 0.25],
     [1.236, 1.24],
     ['0,333', 0.33],
+    [0.001, null],
+    ['0,004', null],
+    ['0x10', null],
+    ['1e2', null],
+    ['2.', 2],
+    ['.5', 0.5],
   ])('toQuantity(%j) → %j', (input, expected) => {
     expect(toQuantity(input)).toBe(expected)
   })

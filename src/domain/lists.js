@@ -13,8 +13,10 @@ function ensureEditable(list) {
   }
 }
 
+/** Redondea a 2 decimales; lo que queda en 0 no es una cantidad. */
 function roundQuantity(value) {
-  return Math.round(value * 100) / 100
+  const rounded = Math.round(value * 100) / 100
+  return rounded > 0 ? rounded : null
 }
 
 function validUnit(unit) {
@@ -32,7 +34,8 @@ export function toQuantity(value) {
   }
   if (typeof value === 'string') {
     const cleaned = value.trim().replace(',', '.')
-    if (cleaned === '') return null
+    // Solo dígitos con decimales opcionales: Number() aceptaría '0x10' o '1e2'.
+    if (!/^(\d+\.?\d*|\.\d+)$/.test(cleaned)) return null
     const parsed = Number(cleaned)
     if (!Number.isFinite(parsed) || parsed <= 0) return null
     return roundQuantity(parsed)
