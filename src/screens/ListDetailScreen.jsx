@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import ScreenHeader from '../components/ui/ScreenHeader.jsx'
 import ProgressBar from '../components/ui/ProgressBar.jsx'
@@ -15,6 +15,8 @@ import { useStore } from '../store/StoreProvider.jsx'
 import { groupByCategory, listProgress, isComplete } from '../domain/lists.js'
 import { formatDate } from '../domain/format.js'
 import { CATEGORY_BY_ID } from '../data/categories.js'
+import Logui from '../mascot/Logui.jsx'
+import { useFlip } from '../components/motion/useFlip.js'
 import '../components/lists/lists.css'
 
 export default function ListDetailScreen() {
@@ -87,6 +89,7 @@ export default function ListDetailScreen() {
 
       {complete && !archived && (
         <Card tone="butter" className="list-banner list-banner--done">
+          <Logui mood="celebrate" size={76} className="list-banner__logui" />
           <p><strong>¡Todo comprado!</strong> ¿Guardamos la lista en el historial?</p>
           <Button variant="primary" size="small" onClick={archive}>
             <UiIcon name="archive" size={20} /> Archivar
@@ -96,37 +99,20 @@ export default function ListDetailScreen() {
 
       {total === 0 && !archived && (
         <div className="empty">
-          <CategoryIcon categoryId="otros" size={64} />
+          <Logui mood="think" size={100} />
           <p>La lista está vacía. Escribe arriba tu primer producto.</p>
         </div>
       )}
 
-      {groups.map((group) => {
-        const category = CATEGORY_BY_ID[group.categoryId]
-        const left = group.items.filter((i) => !i.checked).length
-        return (
-          <section key={group.categoryId} className="aisle" style={{ '--aisle-color': category.color }}>
-            <h2 className="aisle__title">
-              <CategoryIcon categoryId={group.categoryId} size={30} />
-              <span>{category.label}</span>
-              <span className="aisle__count" aria-label={left ? `${left} pendientes` : 'Todo comprado'}>
-                {left || <UiIcon name="check" size={16} strokeWidth={3.5} />}
-              </span>
-            </h2>
-            <ul className="aisle__items">
-              {group.items.map((item) => (
-                <ItemRow
-                  key={item.id}
-                  item={item}
-                  readOnly={archived}
-                  onToggle={() => actions.toggleItem(list.id, item.id)}
-                  onEdit={() => setEditingId(item.id)}
-                />
-              ))}
-            </ul>
-          </section>
-        )
-      })}
+      {groups.map((group) => (
+        <Aisle
+          key={group.categoryId}
+          group={group}
+          readOnly={archived}
+          onToggle={(itemId) => actions.toggleItem(list.id, itemId)}
+          onEdit={setEditingId}
+        />
+      ))}
 
       <EditItemModal
         item={editing}
@@ -186,5 +172,35 @@ export default function ListDetailScreen() {
         </ModalActions>
       </Modal>
     </main>
+  )
+}
+
+/** Un pasillo (categoría) con sus productos; al marcar, el producto se desliza a su nuevo sitio. */
+function Aisle({ group, readOnly, onToggle, onEdit }) {
+  const listRef = useRef(null)
+  useFlip(listRef)
+  const category = CATEGORY_BY_ID[group.categoryId]
+  const left = group.items.filter((i) => !i.checked).length
+  return (
+    <section className="aisle" style={{ '--aisle-color': category.color }}>
+      <h2 className="aisle__title">
+        <CategoryIcon categoryId={group.categoryId} size={30} />
+        <span>{category.label}</span>
+        <span className="aisle__count" aria-label={left ? `${left} pendientes` : 'Todo comprado'}>
+          {left || <UiIcon name="check" size={16} strokeWidth={3.5} />}
+        </span>
+      </h2>
+      <ul className="aisle__items" ref={listRef}>
+        {group.items.map((item) => (
+          <ItemRow
+            key={item.id}
+            item={item}
+            readOnly={readOnly}
+            onToggle={() => onToggle(item.id)}
+            onEdit={() => onEdit(item.id)}
+          />
+        ))}
+      </ul>
+    </section>
   )
 }
