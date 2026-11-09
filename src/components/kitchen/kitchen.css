@@ -1,0 +1,50 @@
+.kitchen {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: var(--line);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow);
+  background: var(--c-cream);
+  stroke: var(--c-cocoa);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: hidden;
+}
+
+/* Objetos tocables: rebotan al pasar, se hunden al pulsar */
+.kitchen__spot {
+  cursor: pointer;
+  outline: none;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition: transform var(--dur-med) var(--ease-bounce), filter var(--dur-fast) ease;
+}
+.kitchen__spot:hover { transform: translateY(-3px) scale(1.03); }
+.kitchen__spot:active { transform: translateY(2px) scale(.97); }
+.kitchen__spot:focus-visible {
+  filter: drop-shadow(0 0 0 var(--c-tomato)) drop-shadow(0 0 3px var(--c-tomato));
+  transform: translateY(-3px) scale(1.03);
+}
+
+/* Accesos rápidos bajo la escena */
+.kitchen-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+}
+.kitchen-nav .btn { justify-content: space-between; padding: 0 var(--sp-4); font-size: var(--fs-m); }
+.kitchen-nav__count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 var(--sp-2);
+  border: var(--line);
+  border-radius: var(--r-pill);
+  background: var(--c-white);
+  color: var(--c-cocoa);
+  font-family: var(--font-body);
+  font-size: var(--fs-s);
+}
