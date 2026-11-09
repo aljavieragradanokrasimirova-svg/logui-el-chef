@@ -15,6 +15,7 @@ export default function HomeScreen() {
       </header>
       <Card tone="butter" style={{ display: 'grid', gap: 'var(--sp-3)' }}>
         <Link to="/listas" className="btn btn--primary">Mis listas ({active})</Link>
+        <Link to="/recetas" className="btn btn--accent">Recetas ({state.recipes.length})</Link>
         <Link to="/historial" className="btn">Historial ({archived})</Link>
       </Card>
     </main>
