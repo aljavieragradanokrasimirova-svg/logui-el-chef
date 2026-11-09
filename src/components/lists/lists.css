@@ -100,11 +100,12 @@
 .menu .btn { justify-content: flex-start; }
 
 /* ---------- Tarjetas de lista ---------- */
-.list-card { display: grid; gap: var(--sp-3); }
+.list-card { display: grid; gap: var(--sp-2); }
 .list-card__link {
-  display: grid;
+  display: flex;
+  align-items: center;
   gap: var(--sp-3);
-  padding: var(--sp-4);
+  padding: var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-3);
   border: var(--line);
   border-radius: var(--r-card);
   box-shadow: var(--shadow);
@@ -114,13 +115,27 @@
   transition: transform var(--dur-fast) var(--ease-bounce), box-shadow var(--dur-fast) ease;
 }
 .list-card__link:active { transform: translateY(3px); box-shadow: var(--shadow-pressed); }
+.list-card--done .list-card__link { background: var(--c-butter-soft); }
+.list-card__body { flex: 1; min-width: 0; display: grid; gap: var(--sp-1); }
 .list-card__name {
   font-family: var(--font-title);
   font-size: var(--fs-l);
+  line-height: 1.1;
   overflow-wrap: break-word;
 }
+.list-card__aisles { display: flex; align-items: center; gap: var(--sp-1); }
+.list-card__aisle {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--c-cocoa);
+  border-radius: var(--r-pill);
+  background: var(--c-cream);
+}
+.list-card__more { font-size: var(--fs-s); font-weight: 800; color: var(--c-cocoa-soft); }
 .list-card__meta { font-size: var(--fs-s); font-weight: 700; color: var(--c-cocoa-soft); }
-.list-card__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
+.list-card__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); padding-left: var(--sp-2); }
 .list-card__actions .btn { min-height: var(--tap); }
 .lists-history {
   display: inline-flex;
