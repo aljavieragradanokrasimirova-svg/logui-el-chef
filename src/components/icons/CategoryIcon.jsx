@@ -75,6 +75,55 @@ export const ICONS = {
       <path style={NONE} d="m18 27 1 10m5-10v10m6-10-1 10" />
     </>
   ),
+  // ---- Recetas ----
+  pot: (
+    <>
+      <path style={NONE} d="M9 25H4M39 25h5" />
+      <path style={fill('tomato')} d="M9 20h30v14a8 8 0 0 1-8 8H17a8 8 0 0 1-8-8Z" />
+      <path style={fill('butter')} d="M6 20c0-6 8-9 18-9s18 3 18 9Z" />
+      <circle style={fill('cocoa')} cx="24" cy="9" r="2.5" />
+      <path style={NONE} d="M15 30v5" />
+    </>
+  ),
+  pan: (
+    <>
+      <path style={fill('cocoa')} d="m31 19 10-10 3 3-10 10Z" />
+      <circle style={fill('cocoa-soft')} cx="20" cy="27" r="15" />
+      <path style={fill('white')} d="M11 26c0-5 5-8 9-7 5-2 10 2 9 7 0 5-5 8-10 7-5 1-8-2-8-7Z" />
+      <circle style={fill('butter')} cx="20" cy="26" r="3.5" />
+    </>
+  ),
+  salad: (
+    <>
+      <path style={fill('mint')} d="M9 24c0-6 5-10 10-8 2-5 9-5 11 0 5-2 10 2 9 8Z" />
+      <circle style={fill('tomato')} cx="30" cy="19" r="3.5" />
+      <path style={fill('white')} d="M5 24h38c0 10-8 17-19 17S5 34 5 24Z" />
+    </>
+  ),
+  cake: (
+    <>
+      <path style={fill('butter')} d="M24 3c4 4 4 8 0 8s-4-4 0-8Z" />
+      <rect style={fill('tomato')} x="21.5" y="11" width="5" height="10" rx="1.5" />
+      <rect style={fill('butter-soft')} x="7" y="21" width="34" height="20" rx="4" />
+      <path style={fill('white')} d="M7 25a4 4 0 0 1 4-4h26a4 4 0 0 1 4 4v3c-3 3-6 3-8 0-3 3-6 3-9 0-3 3-6 3-9 0-2 3-5 3-8 0Z" />
+    </>
+  ),
+  soup: (
+    <>
+      <path style={NONE} d="M16 15c-3-3 3-5 0-9M24 15c-3-3 3-5 0-9M32 15c-3-3 3-5 0-9" />
+      <path style={fill('tomato')} d="M5 21h38c0 11-8 18-19 18S5 32 5 21Z" />
+      <path style={NONE} d="M17 43h14" />
+    </>
+  ),
+  pasta: (
+    <>
+      <ellipse style={fill('white')} cx="24" cy="36" rx="21" ry="8" />
+      <path style={fill('butter')} d="M8 35c0-18 32-18 32 0Z" />
+      <path style={NONE} d="M13 33c2-7 7-7 8 0m2 0c2-9 9-9 11 0" />
+      <path style={fill('tomato')} d="M14 21c3-7 17-7 20 0-4 4-16 4-20 0Z" />
+      <path style={fill('mint')} d="M26 15c2-4 7-4 9-1-2 3-6 4-9 1Z" />
+    </>
+  ),
 }
 
 export const ICON_IDS = Object.keys(ICONS)
