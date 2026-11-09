@@ -10,7 +10,7 @@ export default function ItemRow({ item, readOnly = false, onToggle, onEdit }) {
   const quantity = formatQuantity(item.quantity, item.unit)
   const classes = ['item', item.checked && 'item--checked', readOnly && 'item--readonly'].filter(Boolean).join(' ')
   return (
-    <li className={classes}>
+    <li className={classes} data-flip-id={item.id}>
       <button
         type="button"
         className="item__main"

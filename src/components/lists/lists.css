@@ -67,7 +67,9 @@
 .list-progress__text { font-size: var(--fs-s); color: var(--c-cocoa-soft); font-weight: 700; }
 .list-banner { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); justify-content: space-between; }
 .list-banner p { margin: 0; flex: 1 1 200px; }
-.list-banner--done { animation: banner-pop var(--dur-med) var(--ease-bounce); }
+.list-banner--done { animation: banner-pop var(--dur-med) var(--ease-bounce); flex-wrap: nowrap; }
+.list-banner__logui { margin: calc(-1 * var(--sp-2)) 0; }
+.list-banner--done .btn { flex: none; }
 @keyframes banner-pop { from { transform: scale(.92); } }
 
 /* ---------- Pasillo (grupo por categoría) ---------- */
@@ -104,7 +106,7 @@
 .aisle__items { margin: 0; padding: 0; list-style: none; }
 
 /* ---------- Producto ---------- */
-.item { display: flex; align-items: stretch; }
+.item { display: flex; align-items: stretch; position: relative; background: var(--c-white); }
 .item + .item { border-top: 2px dashed var(--c-cream-deep); }
 .item__main {
   flex: 1;
@@ -157,9 +159,7 @@
   color: var(--c-cocoa-soft);
 }
 .item--checked .item__qty { opacity: .6; }
-.item--checked { animation: item-drop var(--dur-med) var(--ease-bounce); }
 @keyframes check-pop { 0% { transform: scale(.6); } 100% { transform: scale(1); } }
-@keyframes item-drop { from { transform: translateY(-8px); opacity: .4; } }
 
 /* ---------- Menú de opciones ---------- */
 .menu { display: grid; gap: var(--sp-3); }
