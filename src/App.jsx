@@ -1,6 +1,7 @@
 import Button from './components/ui/Button.jsx'
 import Card from './components/ui/Card.jsx'
 import Chip from './components/ui/Chip.jsx'
+import CategoryIcon from './components/icons/CategoryIcon.jsx'
 import { CATEGORIES } from './data/categories.js'
 
 /** Pantalla provisional: muestra el sistema de diseño mientras se construyen las pantallas reales. */
@@ -26,7 +27,10 @@ export default function App() {
         <h3 style={{ marginBottom: 'var(--sp-3)' }}>Categorías</h3>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--sp-2)' }}>
           {CATEGORIES.map((c) => (
-            <Chip key={c.id} color={c.color}>{c.label}</Chip>
+            <Chip key={c.id} color={c.color}>
+              <CategoryIcon categoryId={c.id} size={22} />
+              {c.label}
+            </Chip>
           ))}
         </div>
       </Card>
