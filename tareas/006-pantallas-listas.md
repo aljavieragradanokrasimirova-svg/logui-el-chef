@@ -23,7 +23,10 @@ hecho: úsalo como referencia de estilo y de uso del store.
   - `actions.createList(name) → id`, `actions.reuseList(listId) → id`, `actions.deleteList(listId)`.
 - `listProgress(list) → { checked, total }` de `src/domain/lists.js`.
 - `formatDate(iso)` de `src/domain/format.js` ("9 nov").
-- Componentes: `ScreenHeader` (`title`, `backTo`, hijos = acciones a la derecha), `Card`, `Button`
+- Componentes (rutas): `src/components/ui/` → `ScreenHeader.jsx`, `Card.jsx`, `Button.jsx`, `ProgressBar.jsx`,
+  `Modal.jsx` (export default `Modal` y export `ModalActions`); `src/components/lists/RenameModal.jsx`;
+  `src/components/icons/UiIcon.jsx` y `src/components/icons/CategoryIcon.jsx` (export default).
+- Uso: `ScreenHeader` (`title`, `backTo`, hijos = acciones a la derecha), `Card`, `Button`
   (`variant="primary"`, `size="small"`, `round`), `ProgressBar` (`value`, `max`, `label`), `Modal` + `ModalActions`,
   `RenameModal` (`open`, `name`, `title`, `saveLabel`, `placeholder`, `onClose`, `onSave(name)`),
   `UiIcon` (`name`: `plus`, `trash`, `reuse`, `archive`…), `CategoryIcon` (`categoryId`, `size`).
