@@ -48,3 +48,7 @@
   font-family: var(--font-body);
   font-size: var(--fs-s);
 }
+
+/* Logui en la cocina: se le puede tocar para que salude */
+.kitchen__logui { cursor: pointer; outline: none; }
+.kitchen__logui:focus-visible { filter: drop-shadow(0 0 3px var(--c-tomato)); }

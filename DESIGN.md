@@ -22,6 +22,7 @@ Inspiración: juegos de cocina de dibujos animados. Diseño **original**: no usa
 | `--c-cocoa-soft` | #7A5A48 | Texto secundario |
 | `--c-mint` | #6CC4A1 | Éxito, comprado |
 | `--c-white` | #FFFFFF | Superficies |
+| `--c-caramel` | #D9893F | Pelaje de Logui (solo ilustración) |
 
 Cada categoría tiene su color propio (`src/data/categories.js`).
 
