@@ -8,3 +8,7 @@ Reparto del trabajo:
   con criterios de aceptación y, cuando sea posible, tests escritos de antemano.
 
 Flujo: una rama por tarea (`tarea/NNN-nombre`), OpenCode implementa, Claude revisa el diff y ejecuta `npm test` y `npm run build`, y se hace merge a `master`.
+
+Publicación: cada push a `master` en GitHub (`aljavieragradanokrasimirova-svg/logui-el-chef`) ejecuta los tests y
+despliega en https://aljavieragradanokrasimirova-svg.github.io/logui-el-chef/ (`.github/workflows/deploy.yml`).
+Los commits usan el correo noreply de GitHub (configurado en el `.git/config` del proyecto), no el del instituto.
