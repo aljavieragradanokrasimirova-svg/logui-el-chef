@@ -164,3 +164,37 @@
 /* ---------- Menú de opciones ---------- */
 .menu { display: grid; gap: var(--sp-3); }
 .menu .btn { justify-content: flex-start; }
+
+/* ---------- Tarjetas de lista ---------- */
+.list-card { display: grid; gap: var(--sp-3); }
+.list-card__link {
+  display: grid;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border: var(--line);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow);
+  background: var(--c-white);
+  color: inherit;
+  text-decoration: none;
+  transition: transform var(--dur-fast) var(--ease-bounce), box-shadow var(--dur-fast) ease;
+}
+.list-card__link:active { transform: translateY(3px); box-shadow: var(--shadow-pressed); }
+.list-card__name {
+  font-family: var(--font-title);
+  font-size: var(--fs-l);
+  overflow-wrap: break-word;
+}
+.list-card__meta { font-size: var(--fs-s); font-weight: 700; color: var(--c-cocoa-soft); }
+.list-card__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
+.list-card__actions .btn { min-height: var(--tap); }
+.lists-history {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  min-height: var(--tap);
+  font-weight: 700;
+  color: var(--c-cocoa-soft);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
