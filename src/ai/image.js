@@ -15,17 +15,48 @@ function blobToBase64(blob) {
  * Una foto de móvil pasa de varios MB a unos 300 KB sin perder lo que hace falta para leer el texto.
  * Devuelve { base64, mediaType }.
  */
+/** Decodifica la foto de la forma más compatible posible (los móviles viejos no aceptan todas las opciones). */
+async function decode(file) {
+  try {
+    return await createImageBitmap(file, { imageOrientation: 'from-image' })
+  } catch {
+    // sin esa opción (navegadores antiguos): el navegador aplica la orientación por su cuenta
+  }
+  try {
+    return await createImageBitmap(file)
+  } catch {
+    // último recurso: un <img> normal
+  }
+  const url = URL.createObjectURL(file)
+  try {
+    const img = new Image()
+    img.src = url
+    await img.decode()
+    return { width: img.naturalWidth, height: img.naturalHeight, source: img }
+  } finally {
+    setTimeout(() => URL.revokeObjectURL(url), 10_000)
+  }
+}
+
+const PREPARE_TIMEOUT_MS = 25_000
+
 export async function prepareImage(file) {
-  const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' })
-  const scale = Math.min(1, MAX_SIDE / Math.max(bitmap.width, bitmap.height))
+  const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('la foto tarda demasiado en prepararse')), PREPARE_TIMEOUT_MS))
+  return Promise.race([prepare(file), timeout])
+}
+
+async function prepare(file) {
+  const decoded = await decode(file)
+  const bitmap = decoded.source ?? decoded
+  const scale = Math.min(1, MAX_SIDE / Math.max(decoded.width, decoded.height))
   const canvas = document.createElement('canvas')
-  canvas.width = Math.round(bitmap.width * scale)
-  canvas.height = Math.round(bitmap.height * scale)
+  canvas.width = Math.round(decoded.width * scale)
+  canvas.height = Math.round(decoded.height * scale)
   const ctx = canvas.getContext('2d')
   ctx.fillStyle = '#fff' // las capturas con transparencia (PNG) pasan a fondo blanco
   ctx.fillRect(0, 0, canvas.width, canvas.height)
   ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
-  bitmap.close?.()
+  decoded.close?.()
   const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', QUALITY))
   if (!blob) throw new Error('No se pudo preparar la imagen')
   return { base64: await blobToBase64(blob), mediaType: 'image/jpeg' }
