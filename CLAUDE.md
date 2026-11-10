@@ -17,5 +17,8 @@ Recetas desde una foto (`src/ai/`): el usuario pega su propia clave de API (Clau
 `localStorage` bajo `logui:ai`, separada del estado (`logui:v1`) para que NUNCA entre en las copias de seguridad.
 Las llamadas salen directas del navegador (no hay servidor). El esquema, el prompt y la conversión a receta
 (`schema.js`, `draft.js`) son comunes; cada proveedor solo implementa su llamada (`anthropic.js`, `openai.js`).
-Los modelos disponibles están en `providers.js`. Sin clave real no se puede probar de extremo a extremo: los tests
+Proveedores: Gemini (por defecto, tiene nivel gratuito), Claude y GPT. Gemini va por `generateContent` y NO por la API
+nueva «Interactions»: esa exige la cabecera `Api-Revision`, que Google bloquea en CORS (comprobado con un OPTIONS).
+Además hay un modo manual sin claves (`manual.js`): se copian unas instrucciones, se usa la app de IA del móvil y se pega
+la respuesta. Los modelos disponibles están en `providers.js`. Sin clave real no se puede probar de extremo a extremo: los tests
 usan respuestas simuladas.

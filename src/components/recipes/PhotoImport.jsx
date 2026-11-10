@@ -8,6 +8,7 @@ import { loadAiConfig, activeSelection } from '../../ai/config.js'
 import { prepareImage } from '../../ai/image.js'
 import { readRecipeFromImage } from '../../ai/readRecipe.js'
 import { AiError } from '../../ai/errors.js'
+import ManualImportSheet from './ManualImportSheet.jsx'
 
 /**
  * Botón «Desde una foto»: elige o hace una foto, la IA la lee y se abre el formulario de receta ya relleno.
@@ -17,7 +18,7 @@ export default function PhotoImport({ round = false }) {
   const navigate = useNavigate()
   const inputRef = useRef(null)
   const abortRef = useRef(null)
-  const [status, setStatus] = useState('idle') // idle | nokey | reading | error
+  const [status, setStatus] = useState('idle') // idle | nokey | reading | error | manual
   const [message, setMessage] = useState('')
 
   function start() {
@@ -80,11 +81,11 @@ export default function PhotoImport({ round = false }) {
 
       <Modal open={status === 'nokey'} onClose={close} title="Falta tu clave de IA">
         <p style={{ margin: 0 }}>
-          Para leer recetas desde una foto necesitas pegar una clave de API de Claude o de GPT. Se hace una sola vez en Ajustes.
+          Para que Logui lea la foto solo necesita una clave de API (Gemini tiene nivel gratuito), que se pega una vez en Ajustes. También puedes usar la app de IA que ya tengas, copiando y pegando.
         </p>
         <ModalActions>
-          <Button size="small" onClick={close}>Ahora no</Button>
-          <Link to="/ajustes" className="btn btn--small btn--primary">Ir a Ajustes</Link>
+          <Button size="small" onClick={() => setStatus('manual')}>Usar mi app de IA</Button>
+          <Link to="/ajustes" className="btn btn--small btn--primary">Poner mi clave</Link>
         </ModalActions>
       </Modal>
 
@@ -101,10 +102,11 @@ export default function PhotoImport({ round = false }) {
       <Modal open={status === 'error'} onClose={close} title="No se pudo leer la receta">
         <p style={{ margin: 0 }} role="alert">{message}</p>
         <ModalActions>
-          <Button size="small" onClick={close}>Cerrar</Button>
+          <Button size="small" onClick={() => setStatus('manual')}>Usar mi app de IA</Button>
           <Button size="small" variant="primary" onClick={() => { close(); start() }}>Probar otra foto</Button>
         </ModalActions>
       </Modal>
+      <ManualImportSheet open={status === 'manual'} onClose={close} />
     </>
   )
 }

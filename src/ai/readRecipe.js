@@ -1,9 +1,10 @@
 import { callAnthropic } from './anthropic.js'
 import { callOpenAI } from './openai.js'
+import { callGemini } from './gemini.js'
 import { buildDraft } from './draft.js'
 import { AiError } from './errors.js'
 
-const CALLS = { anthropic: callAnthropic, openai: callOpenAI }
+const CALLS = { anthropic: callAnthropic, openai: callOpenAI, gemini: callGemini }
 
 /** Quita las vallas ```json … ``` por si el modelo las añade aunque se le pida JSON puro. */
 function stripFences(text) {
