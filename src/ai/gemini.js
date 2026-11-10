@@ -28,6 +28,8 @@ export async function callGemini({ apiKey, model, image, signal, fetchImpl = (..
           responseMimeType: 'application/json',
           responseJsonSchema: RECIPE_SCHEMA,
           maxOutputTokens: 16000,
+          // Transcribir no necesita razonar mucho: así contesta en segundos en vez de «pensar» minutos.
+          thinkingConfig: { thinkingLevel: 'LOW' },
         },
       }),
     })
@@ -62,6 +64,10 @@ export async function callGemini({ apiKey, model, image, signal, fetchImpl = (..
     .filter((part) => typeof part.text === 'string' && !part.thought)
     .map((part) => part.text)
     .join('')
-  if (!text.trim()) throw new AiError(candidate && candidate.finishReason !== 'STOP' ? 'refusal' : 'invalid')
+  if (!text.trim()) {
+    throw candidate && candidate.finishReason !== 'STOP'
+      ? new AiError('refusal', candidate.finishReason)
+      : new AiError('invalid', 'respuesta vacía')
+  }
   return text
 }

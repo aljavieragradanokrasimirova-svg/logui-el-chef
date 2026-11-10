@@ -6,6 +6,7 @@ const MESSAGES = {
   rate: 'Demasiadas peticiones seguidas. Espera un minuto y vuelve a intentarlo.',
   network: 'No hay conexión con el servicio. Comprueba internet e inténtalo de nuevo.',
   server: 'El servicio de IA está fallando ahora mismo. Inténtalo en unos minutos.',
+  timeout: 'La IA tarda demasiado en contestar. Inténtalo otra vez o prueba con otro modelo en Ajustes.',
   'too-big': 'La foto es demasiado grande. Prueba con otra o recórtala.',
   refusal: 'La IA no ha querido analizar esta imagen. Prueba con otra foto.',
   truncated: 'La receta es demasiado larga para leerla de una vez. Prueba con una foto con menos texto.',
@@ -29,11 +30,14 @@ const BAD_KEY = /api key not valid|invalid api key|incorrect api key|api_key_inv
 /** Convierte un error HTTP de cualquiera de los proveedores en un AiError. */
 export function fromHttp(status, message = '', code = '') {
   const text = `${code} ${message}`
+  // El motivo que da el proveedor, para enseñarlo: sin él no se puede saber por qué falla.
+  const detail = String(message).replace(/\s+/g, ' ').trim().slice(0, 140)
+  const why = (extra = '') => [extra, detail].filter(Boolean).join(': ')
   if (status === 401 || status === 403 || BAD_KEY.test(text)) return new AiError('auth')
-  if (status === 402 || QUOTA.test(text)) return new AiError('quota')
-  if (status === 429) return new AiError('rate')
+  if (status === 402 || QUOTA.test(text)) return new AiError('quota', why())
+  if (status === 429) return new AiError('rate', why())
   if (status === 413) return new AiError('too-big')
-  if (status >= 500) return new AiError('server')
+  if (status >= 500) return new AiError('server', why(`HTTP ${status}`))
   if (status === 400 && /too large|too big|image.*(size|exceed)/i.test(text)) return new AiError('too-big')
-  return new AiError('bad-request', String(message).slice(0, 160))
+  return new AiError('bad-request', why(`HTTP ${status}`))
 }
