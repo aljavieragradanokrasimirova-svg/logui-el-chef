@@ -48,12 +48,17 @@ const validState = () => ({
     },
   ],
   productMemory: { leche: { name: 'Leche', categoryId: 'lacteos', unit: 'l', lastUsed: T1 } },
-  settings: { reduceMotion: true },
+  settings: { reduceMotion: true, haptics: false, theme: 'dark' },
 })
 
 describe('sanitizeState', () => {
   it('deja intacto un estado válido', () => {
     expect(sanitizeState(validState())).toEqual(validState())
+  })
+
+  it('ajustes: valores por defecto y valores raros', () => {
+    expect(sanitizeState({ version: 1, settings: { theme: 'neón', haptics: 'no' } }).settings).toEqual({ reduceMotion: false, haptics: true, theme: 'auto' })
+    expect(sanitizeState({ version: 1, settings: { theme: 'light', haptics: false } }).settings).toMatchObject({ haptics: false, theme: 'light' })
   })
 
   it('rellena lo que falta', () => {

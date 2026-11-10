@@ -8,6 +8,9 @@ import RecipeDetailScreen from './screens/RecipeDetailScreen.jsx'
 import RecipeEditScreen from './screens/RecipeEditScreen.jsx'
 import SettingsScreen from './screens/SettingsScreen.jsx'
 import TabBar from './components/ui/TabBar.jsx'
+import { ToastProvider } from './components/ui/Toast.jsx'
+import { ViewTransitions } from './feel/viewTransitions.js'
+import ScreenGestures from './feel/ScreenGestures.jsx'
 
 /**
  * Rutas de la app. HashRouter para que funcione en cualquier hosting estático (y como PWA) sin configurar
@@ -16,6 +19,9 @@ import TabBar from './components/ui/TabBar.jsx'
 export default function App() {
   return (
     <HashRouter>
+      <ToastProvider>
+      <ViewTransitions />
+      <ScreenGestures />
       <Routes>
         <Route path="/" element={<HomeScreen />} />
         <Route path="/listas" element={<ListsScreen />} />
@@ -29,6 +35,7 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <TabBar />
+      </ToastProvider>
     </HashRouter>
   )
 }

@@ -64,6 +64,13 @@ function apply(state, action) {
       const lists = state.lists.filter((l) => l.id !== action.listId)
       return lists.length === state.lists.length ? state : { ...state, lists }
     }
+    case 'list/restore': {
+      // Deshacer un borrado: vuelve a su sitio si no existe ya.
+      if (!action.list?.id || state.lists.some((l) => l.id === action.list.id)) return state
+      const lists = state.lists.slice()
+      lists.splice(Math.min(Math.max(action.index ?? lists.length, 0), lists.length), 0, action.list)
+      return { ...state, lists }
+    }
     case 'list/archive':
       return updateList(state, action.listId, (l) => archiveList(l, { now }))
     case 'list/reuse': {
@@ -84,6 +91,13 @@ function apply(state, action) {
     }
     case 'item/remove':
       return updateList(state, action.listId, (l) => removeItem(l, action.itemId))
+    case 'item/restore':
+      return updateList(state, action.listId, (l) => {
+        if (l.archivedAt !== null || !action.item?.id || l.items.some((i) => i.id === action.item.id)) return l
+        const items = l.items.slice()
+        items.splice(Math.min(Math.max(action.index ?? items.length, 0), items.length), 0, action.item)
+        return { ...l, items }
+      })
     case 'item/toggle':
       return updateList(state, action.listId, (l) => toggleItem(l, action.itemId, { now }))
     case 'recipe/save': {
@@ -97,6 +111,12 @@ function apply(state, action) {
     case 'recipe/delete': {
       const recipes = state.recipes.filter((r) => r.id !== action.recipeId)
       return recipes.length === state.recipes.length ? state : { ...state, recipes }
+    }
+    case 'recipe/restore': {
+      if (!action.recipe?.id || state.recipes.some((r) => r.id === action.recipe.id)) return state
+      const recipes = state.recipes.slice()
+      recipes.splice(Math.min(Math.max(action.index ?? recipes.length, 0), recipes.length), 0, action.recipe)
+      return { ...state, recipes }
     }
     case 'recipe/addToList': {
       const recipe = state.recipes.find((r) => r.id === action.recipeId)
@@ -139,11 +159,15 @@ export function createActions(dispatch, { clock = () => new Date().toISOString()
     createList: (name) => send({ type: 'list/create', name }),
     renameList: (listId, name) => void send({ type: 'list/rename', listId, name }),
     deleteList: (listId) => void send({ type: 'list/delete', listId }),
+    /** Deshace `deleteList`: `list` y su posición `index` tal como estaban. */
+    restoreList: (list, index) => void send({ type: 'list/restore', list, index }),
     archiveList: (listId) => void send({ type: 'list/archive', listId }),
     reuseList: (listId) => send({ type: 'list/reuse', listId }),
     addItem: (listId, item) => send({ type: 'item/add', listId, item }),
     updateItem: (listId, itemId, changes) => void send({ type: 'item/update', listId, itemId, changes }),
     removeItem: (listId, itemId) => void send({ type: 'item/remove', listId, itemId }),
+    /** Deshace `removeItem`: `item` y su posición `index` tal como estaban. */
+    restoreItem: (listId, item, index) => void send({ type: 'item/restore', listId, item, index }),
     toggleItem: (listId, itemId) => void send({ type: 'item/toggle', listId, itemId }),
     updateSettings: (changes) => void send({ type: 'settings/update', changes }),
     /** Crea o guarda una receta (conserva `recipe.id` si lo trae). Devuelve su id. */
@@ -152,6 +176,8 @@ export function createActions(dispatch, { clock = () => new Date().toISOString()
       return typeof recipe.id === 'string' && recipe.id !== '' ? recipe.id : seed
     },
     deleteRecipe: (recipeId) => void send({ type: 'recipe/delete', recipeId }),
+    /** Deshace `deleteRecipe`. */
+    restoreRecipe: (recipe, index) => void send({ type: 'recipe/restore', recipe, index }),
     addRecipeToList: (recipeId, listId, servings) => void send({ type: 'recipe/addToList', recipeId, listId, servings }),
     replaceState: (state) => void send({ type: 'state/replace', state }),
     resetState: () => void send({ type: 'state/reset' }),

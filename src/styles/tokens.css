@@ -8,10 +8,16 @@
   --c-cream-deep: #F6E7C8;
   --c-cocoa: #4A2E22;
   --c-cocoa-soft: #7A5A48;
+  --c-ink: #4A2E22; /* texto (en claro, igual que las líneas) */
+  --c-ink-on-light: #4A2E22; /* texto sobre colores vivos (mantequilla, menta, pasillos) */
+  --c-on-accent: #FFFFFF; /* texto sobre tomate */
   --c-mint: #6CC4A1;
   --c-white: #FFFFFF;
   --c-caramel: #D9893F;
   --c-overlay: rgba(74, 46, 34, .45);
+  --c-toast-bg: #4A2E22;
+  --c-toast-ink: #FFF8E7;
+  --c-wash: #D3F0E4; /* menta muy clara: destello al marcar */
 
   /* Tipografía */
   --font-title: 'Baloo 2', 'Nunito', system-ui, sans-serif;

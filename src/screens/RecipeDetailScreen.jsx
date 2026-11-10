@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import ScreenHeader from '../components/ui/ScreenHeader.jsx'
 import Button from '../components/ui/Button.jsx'
 import Chip from '../components/ui/Chip.jsx'
@@ -10,6 +10,7 @@ import { useStore } from '../store/StoreProvider.jsx'
 import { scaleIngredients } from '../domain/recipes.js'
 import { formatQuantity } from '../domain/format.js'
 import '../components/recipes/recipe-detail.css'
+import { useAppNavigate } from '../feel/viewTransitions.js'
 
 const MAX_SERVINGS = 99
 
@@ -128,7 +129,7 @@ function AddToListModal({ open, recipe, servings, onClose }) {
 }
 
 function AddToListForm({ recipe, servings, onClose }) {
-  const navigate = useNavigate()
+  const navigate = useAppNavigate()
   const { state, actions } = useStore()
   const lists = state.lists
     .filter((l) => l.archivedAt === null)

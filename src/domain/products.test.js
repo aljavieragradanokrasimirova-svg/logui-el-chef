@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { MEMORY_LIMIT, rememberProduct, forgetProduct, suggestProducts } from './products.js'
+import { MEMORY_LIMIT, rememberProduct, forgetProduct, suggestProducts, recentProducts } from './products.js'
 
 const T1 = '2026-11-01T10:00:00.000Z'
 const T2 = '2026-11-02T10:00:00.000Z'
@@ -137,5 +137,19 @@ describe('suggestProducts', () => {
   it('usa el catálogo real por defecto', () => {
     const r = suggestProducts('platan')
     expect(r[0]).toEqual({ name: 'Plátanos', categoryId: 'frutas', unit: 'kg', source: 'catalog' })
+  })
+})
+
+describe('recentProducts', () => {
+  const memory = {
+    leche: { name: 'Leche', categoryId: 'lacteos', unit: 'l', lastUsed: '2026-01-03' },
+    pan: { name: 'Pan', categoryId: 'panaderia', unit: 'ud', lastUsed: '2026-01-05' },
+    huevos: { name: 'Huevos', categoryId: 'lacteos', unit: 'ud', lastUsed: '2026-01-01' },
+  }
+
+  it('lo más reciente primero, sin lo que ya está en la lista', () => {
+    expect(recentProducts(memory, { exclude: ['  PAN '] }).map((p) => p.name)).toEqual(['Leche', 'Huevos'])
+    expect(recentProducts(memory, { limit: 1 })).toEqual([{ name: 'Pan', categoryId: 'panaderia', unit: 'ud', source: 'memory' }])
+    expect(recentProducts()).toEqual([])
   })
 })

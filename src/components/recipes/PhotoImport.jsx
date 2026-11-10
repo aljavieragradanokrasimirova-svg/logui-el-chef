@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import Button from '../ui/Button.jsx'
 import Modal, { ModalActions } from '../ui/Modal.jsx'
 import UiIcon from '../icons/UiIcon.jsx'
@@ -10,19 +10,21 @@ import { prepareImage } from '../../ai/image.js'
 import { readRecipeFromImage } from '../../ai/readRecipe.js'
 import { AiError } from '../../ai/errors.js'
 import ManualImportSheet from './ManualImportSheet.jsx'
+import { useAppNavigate } from '../../feel/viewTransitions.js'
 
 /**
  * Botón «Desde una foto»: elige o hace una foto, la IA la lee y se abre el formulario de receta ya relleno.
  * `round` = botón redondo solo con icono (cabecera); si no, botón normal con texto.
  */
 export default function PhotoImport({ round = false }) {
-  const navigate = useNavigate()
+  const navigate = useAppNavigate()
   const inputRef = useRef(null)
   const abortRef = useRef(null)
   const [status, setStatus] = useState('idle') // idle | nokey | reading | error | manual
   const [message, setMessage] = useState('')
   const [stage, setStage] = useState('prep') // prep | wait
   const [seconds, setSeconds] = useState(0)
+  const [preview, setPreview] = useState(null) // la foto ya preparada, para enseñarla mientras se lee
 
   // Segundos transcurridos mientras se lee: así se ve si avanza o está parado.
   useEffect(() => {
@@ -53,6 +55,7 @@ export default function PhotoImport({ round = false }) {
     const controller = new AbortController()
     abortRef.current = controller
     setStage('prep')
+    setPreview(null)
     setStatus('reading')
     let image
     try {
@@ -63,6 +66,7 @@ export default function PhotoImport({ round = false }) {
       abortRef.current = null
       return
     }
+    setPreview(`data:${image.mediaType};base64,${image.base64}`)
     setStage('wait')
     try {
       const selection = activeSelection(loadAiConfig())
@@ -112,10 +116,7 @@ export default function PhotoImport({ round = false }) {
       </Modal>
 
       <Modal open={status === 'reading'} onClose={cancel} title="Leyendo la receta…">
-        <div style={{ display: 'grid', justifyItems: 'center', gap: 'var(--sp-3)', textAlign: 'center' }}>
-          <Logui mood="think" size={96} />
-          <p style={{ margin: 0 }}>{stage === 'prep' ? 'Preparando la foto…' : 'Esperando a la IA…'} {seconds} s. Suele tardar entre 5 y 20 segundos.</p>
-        </div>
+        <ReadingProgress preview={preview} stage={stage} seconds={seconds} />
         <ModalActions>
           <Button size="small" onClick={cancel}>Cancelar</Button>
         </ModalActions>
@@ -130,5 +131,55 @@ export default function PhotoImport({ round = false }) {
       </Modal>
       <ManualImportSheet open={status === 'manual'} onClose={close} />
     </>
+  )
+}
+
+/** Qué se le cuenta al usuario mientras espera, según los segundos (la IA no informa de su avance). */
+function stageText(stage, seconds) {
+  if (stage === 'prep') return 'Preparando la foto…'
+  if (seconds < 4) return 'Mirando la foto…'
+  if (seconds < 9) return 'Apuntando los ingredientes…'
+  if (seconds < 16) return 'Ordenando los pasos…'
+  return 'Repasando los detalles…'
+}
+
+/**
+ * Espera de la lectura: la foto con una línea que la recorre, una receta «en esqueleto» que se va
+ * rellenando y una barra que avanza (estimada: rápida al principio y cada vez más lenta, sin llegar al final).
+ */
+function ReadingProgress({ preview, stage, seconds }) {
+  const progress = stage === 'prep' ? 0.08 : 0.1 + 0.82 * (1 - Math.exp(-seconds / 9))
+  const lines = stage === 'prep' ? 0 : seconds < 3 ? 1 : seconds < 8 ? 2 : 3
+  return (
+    <div className="reading">
+      <div className="reading__stage">
+        <div className="reading__photo">
+          {preview ? <img src={preview} alt="" /> : <Logui mood="think" size={70} />}
+          <span className="reading__scan" aria-hidden="true" />
+        </div>
+        <div className="reading__sheet" aria-hidden="true">
+          <span className="skeleton skeleton--title" />
+          {lines >= 1 && <span className="skeleton reading__line" style={{ width: '80%' }} />}
+          {lines >= 2 && (
+            <>
+              <span className="skeleton reading__line" style={{ width: '65%' }} />
+              <span className="skeleton reading__line" style={{ width: '72%' }} />
+            </>
+          )}
+          {lines >= 3 && (
+            <>
+              <span className="skeleton reading__line reading__line--step" style={{ width: '92%' }} />
+              <span className="skeleton reading__line reading__line--step" style={{ width: '58%' }} />
+            </>
+          )}
+        </div>
+      </div>
+      <div className="reading__bar" aria-hidden="true">
+        <span style={{ transform: `scaleX(${progress.toFixed(3)})` }} />
+      </div>
+      <p className="reading__text" role="status">
+        {stageText(stage, seconds)} <span className="reading__secs">{seconds} s</span>
+      </p>
+    </div>
   )
 }

@@ -40,7 +40,42 @@
 .aisle__items { margin: 0; padding: 0; list-style: none; }
 
 /* ---------- Producto ---------- */
-.item { display: flex; align-items: stretch; position: relative; background: var(--c-white); }
+.item { position: relative; overflow: hidden; background: var(--c-white); }
+.item__slide {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: stretch;
+  background: var(--c-white);
+  touch-action: pan-y; /* el scroll vertical lo hace el navegador; el horizontal es nuestro */
+}
+/* Fondo que aparece al deslizar: verde a la derecha (marcar), rojo a la izquierda (borrar) */
+.item__under {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--sp-4);
+  font-family: var(--font-title);
+  font-size: var(--fs-m);
+  color: #4A2E22;
+  visibility: hidden;
+}
+.item[data-swipe] .item__under { visibility: visible; }
+.item[data-swipe='right'] .item__under { background: var(--c-mint); }
+.item[data-swipe='left'] .item__under { background: var(--c-tomato); color: #FFFFFF; justify-content: flex-end; }
+.item[data-swipe='right'] .item__under-side--left,
+.item[data-swipe='left'] .item__under-side--right { display: none; }
+.item__under-side {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  opacity: .75;
+  transform: scale(.85);
+  transition: transform var(--dur-fast) var(--ease-bounce), opacity var(--dur-fast) ease;
+}
+.item[data-armed] .item__under-side { opacity: 1; transform: scale(1.08); }
 .item + .item { border-top: 2px dashed var(--c-cream-deep); }
 .item__main {
   flex: 1;
@@ -65,7 +100,7 @@
   border: var(--line);
   border-radius: var(--r-pill);
   background: var(--c-white);
-  color: var(--c-white);
+  color: var(--c-on-accent);
   transition: background var(--dur-fast) ease, transform var(--dur-med) var(--ease-bounce);
 }
 .item__name { flex: 1; min-width: 0; overflow-wrap: break-word; font-weight: 700; }
@@ -85,15 +120,19 @@
   color: var(--c-cocoa-soft);
   cursor: pointer;
 }
-.item--checked .item__check { background: var(--c-mint); animation: check-pop var(--dur-med) var(--ease-bounce); }
-.item--checked .item__name {
-  text-decoration: line-through;
-  text-decoration-thickness: 3px;
-  text-decoration-color: var(--c-tomato);
-  color: var(--c-cocoa-soft);
+.item__check path { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset var(--dur-med) ease .05s; }
+.item--checked .item__check { background: var(--c-mint); }
+.item--checked .item__check path { stroke-dashoffset: 0; }
+/* Tachado que avanza de izquierda a derecha (también en nombres de varias líneas) */
+.item__strike {
+  background: linear-gradient(var(--c-tomato), var(--c-tomato)) no-repeat 0 58% / 0% 3px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  transition: background-size var(--dur-med) ease, color var(--dur-med) ease;
 }
+.item--checked .item__strike { background-size: 100% 3px; color: var(--c-cocoa-soft); }
 .item--checked .item__qty { opacity: .6; }
-@keyframes check-pop { 0% { transform: scale(.6); } 100% { transform: scale(1); } }
+
 
 /* ---------- Menú de opciones ---------- */
 .menu { display: grid; gap: var(--sp-3); }
@@ -167,7 +206,23 @@
 }
 .suggestion:active { background: var(--c-butter-soft); }
 .suggestion__tag { font-size: var(--fs-s); font-weight: 700; color: var(--c-cocoa-soft); }
-.add-sheet__status { min-height: 1.4em; margin: 0; font-size: var(--fs-s); font-weight: 800; color: var(--c-cocoa-soft); }
+.add-sheet__status { min-height: 28px; margin: 0; font-size: var(--fs-s); font-weight: 800; color: var(--c-cocoa-soft); }
+.add-sheet__added { display: inline-flex; align-items: center; gap: var(--sp-2); animation: added-pop var(--dur-med) var(--ease-bounce); }
+.add-sheet__count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border: 2px solid var(--c-cocoa);
+  border-radius: var(--r-pill);
+  background: var(--c-mint);
+  color: #4A2E22;
+  font-family: var(--font-title);
+}
+.add-sheet__hint { margin: 0; font-size: var(--fs-s); font-weight: 800; color: var(--c-cocoa-soft); }
+.add-sheet__suggestions > li { animation: rise-in var(--dur-med) ease backwards; }
+@keyframes added-pop { from { transform: scale(.85); opacity: 0; } }
 .add-sheet__actions { display: grid; grid-template-columns: 1fr 2fr; gap: var(--sp-3); }
 
 /* ---------- Botón flotante ---------- */
@@ -201,3 +256,4 @@
   background: var(--c-cream);
   border-top: 2px dashed var(--c-cream-deep);
 }
+.add-sheet__status:empty { display: none; }

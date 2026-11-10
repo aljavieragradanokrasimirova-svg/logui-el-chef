@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { reducer, createActions } from './reducer.js'
 import { loadState, saveState, sanitizeState, STORAGE_KEY } from './storage.js'
+import { setHapticsEnabled } from '../feel/haptics.js'
 
 const StoreContext = createContext(null)
 
@@ -40,6 +41,14 @@ export function StoreProvider({ children, storage }) {
   useEffect(() => {
     document.documentElement.classList.toggle('reduce-motion', reduceMotion)
   }, [reduceMotion])
+
+  const { haptics, theme } = state.settings
+  useEffect(() => setHapticsEnabled(haptics), [haptics])
+  useEffect(() => {
+    // 'auto' sigue al sistema (CSS con prefers-color-scheme); 'light'/'dark' lo fuerzan.
+    if (theme === 'auto') delete document.documentElement.dataset.theme
+    else document.documentElement.dataset.theme = theme
+  }, [theme])
 
   const actions = useMemo(() => createActions(dispatch), [])
   const value = useMemo(() => ({ state, actions, saveFailed }), [state, actions, saveFailed])

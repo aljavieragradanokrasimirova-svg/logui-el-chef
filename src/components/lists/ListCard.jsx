@@ -21,7 +21,7 @@ export default function ListCard({ list, to, children }) {
 
   return (
     <div className={`list-card${done ? ' list-card--done' : ''}`}>
-      <Link to={to} className="list-card__link">
+      <Link to={to} className="list-card__link" data-vt-expand="">
         <ProgressRing value={checked} max={total} size={60} label="Comprados" />
         <span className="list-card__body">
           <span className="list-card__name">{list.name}</span>

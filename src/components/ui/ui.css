@@ -18,7 +18,7 @@
 }
 .btn:active { transform: translateY(3px); box-shadow: var(--shadow-pressed); }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
-.btn--primary { background: var(--c-tomato); color: var(--c-white); }
+.btn--primary { background: var(--c-tomato); color: var(--c-on-accent); }
 .btn--accent { background: var(--c-butter); }
 .btn--ghost { background: transparent; box-shadow: none; border-color: transparent; }
 .btn--ghost:active { transform: none; }
@@ -61,7 +61,7 @@
 
 /* Los enlaces con aspecto de botón */
 a.btn { color: inherit; text-decoration: none; }
-a.btn--primary { color: var(--c-white); }
+a.btn--primary { color: var(--c-on-accent); }
 
 /* Campos de texto */
 .field {
@@ -119,7 +119,7 @@ select.field { padding-right: var(--sp-2); }
   border-radius: var(--r-card);
   box-shadow: 0 6px 0 var(--c-cocoa);
   background: var(--c-cream);
-  color: var(--c-cocoa);
+  color: var(--c-ink);
 }
 .modal::backdrop { background: var(--c-overlay); }
 .modal[open] { animation: modal-pop var(--dur-med) var(--ease-bounce); }
@@ -170,7 +170,6 @@ select.field { padding-right: var(--sp-2); }
   border-radius: 28px 28px 0 0;
   box-shadow: none;
 }
-.modal--sheet[open] { animation: sheet-up var(--dur-med) var(--ease-bounce); }
 .modal--sheet .modal__body { padding: var(--sp-2) var(--sp-4) calc(var(--sp-4) + env(safe-area-inset-bottom)); gap: var(--sp-4); }
 .modal__handle {
   justify-self: center;
@@ -180,7 +179,6 @@ select.field { padding-right: var(--sp-2); }
   background: var(--c-cocoa-soft);
   opacity: .4;
 }
-@keyframes sheet-up { from { transform: translateY(40%); opacity: .4; } }
 
 /* ---------- Cabecera «juego de cocina» ---------- */
 .hero {
@@ -190,7 +188,7 @@ select.field { padding-right: var(--sp-2); }
   margin: calc(-1 * var(--sp-4)) calc(-1 * var(--sp-4)) 0;
   padding: calc(var(--sp-4) + env(safe-area-inset-top)) var(--sp-4) calc(var(--sp-5) + 6px);
   background: var(--c-tomato);
-  color: var(--c-white);
+  color: var(--c-on-accent);
   border-bottom: none;
 }
 .hero--mascot { padding-right: 100px; }
@@ -198,7 +196,7 @@ select.field { padding-right: var(--sp-2); }
 .hero--mascot:has(.hero__body) { padding-right: var(--sp-4); }
 .hero--mascot .hero__body { padding-right: 84px; }
 .hero__top { display: flex; align-items: center; gap: var(--sp-3); min-height: var(--tap); }
-.hero__back { flex: none; color: var(--c-cocoa); }
+.hero__back { flex: none; color: var(--c-ink); }
 .hero__title {
   flex: 1;
   min-width: 0;
@@ -206,7 +204,7 @@ select.field { padding-right: var(--sp-2); }
   overflow-wrap: break-word;
   text-shadow: 0 2px 0 var(--c-tomato-dark);
 }
-.hero__actions { display: flex; gap: var(--sp-2); flex: none; color: var(--c-cocoa); }
+.hero__actions { display: flex; gap: var(--sp-2); flex: none; color: var(--c-ink); }
 .hero__body { display: grid; gap: var(--sp-3); }
 .hero__logui { position: absolute; right: var(--sp-3); bottom: 4px; z-index: 1; }
 .hero--mascot .hero__top { padding-right: 0; }
@@ -225,7 +223,7 @@ select.field { padding-right: var(--sp-2); }
   border: var(--line);
   border-radius: var(--r-pill);
   background: var(--c-white);
-  color: var(--c-cocoa);
+  color: var(--c-ink);
   font-size: var(--fs-s);
   font-weight: 800;
 }
@@ -266,11 +264,11 @@ select.field { padding-right: var(--sp-2); }
   transition: transform var(--dur-fast) var(--ease-bounce);
 }
 .tabbar__tab:active { transform: scale(.92); }
-.tabbar__tab--on { border-color: var(--c-cocoa); background: var(--c-butter-soft); color: var(--c-cocoa); }
+.tabbar__tab--on { border-color: var(--c-cocoa); background: var(--c-butter-soft); color: var(--c-ink); }
 .tabbar__tab--on svg { transform: translateY(-1px) rotate(-4deg); }
 .hero__subtitle { margin: 0; font-weight: 700; opacity: .95; }
-.hero .btn, .hero a.btn { color: var(--c-cocoa); }
-.hero a.btn--primary { color: var(--c-white); }
+.hero .btn, .hero a.btn { color: var(--c-ink); }
+.hero a.btn--primary { color: var(--c-on-accent); }
 .modal--sheet { overflow-y: auto; overscroll-behavior: contain; }
 
 /* ---------- Esfera de progreso ---------- */
@@ -282,4 +280,31 @@ select.field { padding-right: var(--sp-2); }
 .ring__text { position: relative; font-family: var(--font-title); font-size: var(--fs-s); line-height: 1; }
 .ring--done .ring__track { fill: var(--c-mint); stroke: var(--c-mint); }
 .ring--done .ring__fill { stroke: var(--c-mint); }
-.ring--done .ring__text { color: var(--c-white); }
+.ring--done .ring__text { color: var(--c-on-accent); }
+
+/* ---------- Ventanas: salida y arrastre ---------- */
+.modal::backdrop { transition: opacity var(--dur-med) ease; opacity: calc(1 - var(--drag, 0)); }
+.modal[open]::backdrop { animation: backdrop-in var(--dur-med) ease; }
+.modal--closing { animation: modal-out var(--dur-fast) ease-in both !important; }
+.modal--sheet.modal--closing { animation: sheet-down var(--dur-med) ease-in both !important; }
+.modal--closing::backdrop { animation: backdrop-out var(--dur-med) ease-in both; }
+@keyframes modal-out { to { transform: scale(.94); opacity: 0; } }
+@keyframes sheet-down { to { transform: translateY(100%); } }
+@keyframes backdrop-in { from { opacity: 0; } }
+@keyframes backdrop-out { to { opacity: 0; } }
+.modal--sheet[open] { animation: sheet-up calc(var(--dur-med) * 1.3) cubic-bezier(.22, 1.2, .36, 1); }
+@keyframes sheet-up { from { transform: translateY(100%); } }
+
+/* Zona para arrastrar el panel: el asa y la cabecera (un poco más alta para el pulgar) */
+.modal__grab {
+  display: grid;
+  gap: var(--sp-3);
+  margin: calc(-1 * var(--sp-2)) calc(-1 * var(--sp-4)) 0;
+  padding: var(--sp-3) var(--sp-4) 0;
+  touch-action: none;
+  cursor: grab;
+}
+.modal--dragging { animation: none !important; }
+.modal--dragging .modal__grab { cursor: grabbing; }
+.modal__handle { width: 52px; height: 6px; }
+.modal--dragging .modal__handle { opacity: .7; }

@@ -1,10 +1,11 @@
 import { useMemo, useRef, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import ScreenHeader from '../components/ui/ScreenHeader.jsx'
 import ProgressBar from '../components/ui/ProgressBar.jsx'
 import Button from '../components/ui/Button.jsx'
 import Card from '../components/ui/Card.jsx'
-import Modal, { ModalActions } from '../components/ui/Modal.jsx'
+import Modal from '../components/ui/Modal.jsx'
+import { useToast } from '../components/ui/Toast.jsx'
 import UiIcon from '../components/icons/UiIcon.jsx'
 import CategoryIcon from '../components/icons/CategoryIcon.jsx'
 import AddItemSheet from '../components/lists/AddItemSheet.jsx'
@@ -17,16 +18,27 @@ import { formatDate } from '../domain/format.js'
 import { CATEGORY_BY_ID } from '../data/categories.js'
 import Logui from '../mascot/Logui.jsx'
 import { useFlip } from '../components/motion/useFlip.js'
+import { haptic } from '../feel/haptics.js'
+import { pickLine } from '../data/loguiLines.js'
+import { useMascot } from '../mascot/useMascot.js'
+import Confetti from '../feel/Confetti.jsx'
 import '../components/lists/lists.css'
+import { useAppNavigate } from '../feel/viewTransitions.js'
 
 export default function ListDetailScreen() {
   const { listId } = useParams()
-  const navigate = useNavigate()
+  const navigate = useAppNavigate()
   const { state, actions } = useStore()
   const list = state.lists.find((l) => l.id === listId)
   const [editingId, setEditingId] = useState(null)
-  const [dialog, setDialog] = useState(null) // 'menu' | 'rename' | 'delete' | null
+  const [dialog, setDialog] = useState(null) // 'menu' | 'rename' | null
   const [adding, setAdding] = useState(false)
+  const toast = useToast()
+  const [burst, setBurst] = useState(0) // confeti al completar
+  const [emptyLine] = useState(() => pickLine('emptyList'))
+  const done = Boolean(list) && isComplete(list)
+  const hasPending = Boolean(list) && list.archivedAt === null && list.items.some((i) => !i.checked)
+  const logui = useMascot(done ? 'celebrate' : 'idle', { idleLine: hasPending ? () => pickLine('idle') : null })
 
   const pendingNames = useMemo(
     () => (list ? list.items.filter((i) => !i.checked).map((i) => i.name) : []),
@@ -53,17 +65,70 @@ export default function ListDetailScreen() {
   const editing = list.items.find((i) => i.id === editingId) ?? null
   const close = () => setDialog(null)
   const archive = () => {
+    haptic('tap')
     actions.archiveList(list.id)
     navigate('/listas')
+    toast.show({ message: pickLine('listArchived'), detail: list.name, mood: 'wave', duration: 3000 })
   }
   const reuse = () => navigate(`/listas/${actions.reuseList(list.id)}`)
 
+  const toggle = (itemId) => {
+    const item = list.items.find((i) => i.id === itemId)
+    const completes = item && !item.checked && checked === total - 1
+    haptic(completes ? 'success' : 'tap')
+    actions.toggleItem(list.id, itemId)
+    if (completes) {
+      setBurst((n) => n + 1)
+      logui.react('celebrate', pickLine('listDone'), 3500)
+    } else if (item && !item.checked) {
+      // Logui se alegra al marcar; a veces lo comenta (siempre al llegar a la mitad)
+      const half = checked + 1 === Math.ceil(total / 2) && total >= 4
+      logui.react('wave', half ? '¡Ya vamos por la mitad!' : Math.random() < 0.3 ? pickLine('itemChecked') : '', 1400)
+    }
+  }
+
+  const closeAdding = (count) => {
+    setAdding(false)
+    if (count > 0) logui.react('wave', pickLine('itemAdded'), 2600)
+  }
+
+  // Borrar no pide confirmación: se puede deshacer desde el aviso durante unos segundos.
+  const deleteItem = (item) => {
+    const index = list.items.findIndex((i) => i.id === item.id)
+    actions.removeItem(list.id, item.id)
+    toast.show({
+      message: pickLine('itemDeleted'),
+      detail: item.name,
+      mood: 'think',
+      actionLabel: 'Deshacer',
+      onAction: () => actions.restoreItem(list.id, item, index),
+    })
+  }
+
+  const deleteList = () => {
+    const index = state.lists.findIndex((l) => l.id === list.id)
+    const snapshot = list
+    haptic('remove')
+    actions.deleteList(list.id)
+    navigate(backTo, { replace: true })
+    toast.show({
+      message: pickLine('listDeleted'),
+      detail: snapshot.name,
+      mood: 'think',
+      actionLabel: 'Deshacer',
+      onAction: () => actions.restoreList(snapshot, index),
+    })
+  }
+
   return (
     <main className="screen">
+      <Confetti burst={burst} />
       <ScreenHeader
         title={list.name}
         backTo={backTo}
-        mascot={complete ? 'celebrate' : 'idle'}
+        mascot={logui.mood}
+        bubble={logui.bubble}
+        onMascotTap={() => logui.react('wave', pickLine(complete ? 'listDone' : hasPending ? 'idle' : 'emptyList'), 2600)}
         actions={
           <Button round size="small" aria-label="Opciones de la lista" onClick={() => setDialog('menu')}>
             <UiIcon name="more" />
@@ -104,7 +169,11 @@ export default function ListDetailScreen() {
       {total === 0 && !archived && (
         <div className="empty">
           <Logui mood="think" size={100} />
-          <p>La lista está vacía. Pulsa «Añadir» para apuntar el primer producto.</p>
+          <p>
+            <strong>{emptyLine}</strong>
+            <br />
+            Pulsa «Añadir» para apuntar el primer producto.
+          </p>
         </div>
       )}
 
@@ -113,8 +182,9 @@ export default function ListDetailScreen() {
           key={group.categoryId}
           group={group}
           readOnly={archived}
-          onToggle={(itemId) => actions.toggleItem(list.id, itemId)}
+          onToggle={toggle}
           onEdit={setEditingId}
+          onDelete={deleteItem}
         />
       ))}
 
@@ -126,7 +196,7 @@ export default function ListDetailScreen() {
           setEditingId(null)
         }}
         onDelete={() => {
-          actions.removeItem(list.id, editing.id)
+          deleteItem(editing)
           setEditingId(null)
         }}
       />
@@ -141,7 +211,7 @@ export default function ListDetailScreen() {
               <Button onClick={archive}><UiIcon name="archive" /> Archivar</Button>
             </>
           )}
-          <Button onClick={() => setDialog('delete')} style={{ color: 'var(--c-tomato-dark)' }}>
+          <Button onClick={deleteList} style={{ color: 'var(--c-tomato-dark)' }}>
             <UiIcon name="trash" /> Borrar lista
           </Button>
         </div>
@@ -157,24 +227,6 @@ export default function ListDetailScreen() {
         }}
       />
 
-      <Modal open={dialog === 'delete'} onClose={close} title="¿Borrar la lista?">
-        <p style={{ margin: 0 }}>
-          Se borrará «{list.name}» con {total === 1 ? 'su producto' : `sus ${total} productos`}. No se puede deshacer.
-        </p>
-        <ModalActions>
-          <Button size="small" onClick={close}>Cancelar</Button>
-          <Button
-            size="small"
-            variant="primary"
-            onClick={() => {
-              actions.deleteList(list.id)
-              navigate(backTo, { replace: true })
-            }}
-          >
-            Borrar
-          </Button>
-        </ModalActions>
-      </Modal>
       {!archived && (
         <button type="button" className="fab" onClick={() => setAdding(true)}>
           <UiIcon name="plus" /> Añadir
@@ -183,7 +235,7 @@ export default function ListDetailScreen() {
 
       <AddItemSheet
         open={adding}
-        onClose={() => setAdding(false)}
+        onClose={closeAdding}
         memory={state.productMemory}
         exclude={pendingNames}
         onAdd={(item) => actions.addItem(list.id, item)}
@@ -193,7 +245,7 @@ export default function ListDetailScreen() {
 }
 
 /** Un pasillo (categoría) con sus productos; al marcar, el producto se desliza a su nuevo sitio. */
-function Aisle({ group, readOnly, onToggle, onEdit }) {
+function Aisle({ group, readOnly, onToggle, onEdit, onDelete }) {
   const listRef = useRef(null)
   useFlip(listRef)
   const category = CATEGORY_BY_ID[group.categoryId]
@@ -215,6 +267,7 @@ function Aisle({ group, readOnly, onToggle, onEdit }) {
             readOnly={readOnly}
             onToggle={() => onToggle(item.id)}
             onEdit={() => onEdit(item.id)}
+            onDelete={() => onDelete(item)}
           />
         ))}
       </ul>

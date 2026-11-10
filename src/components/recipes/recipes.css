@@ -70,7 +70,7 @@
   border: var(--line);
   border-radius: var(--r-pill);
   background: var(--c-white);
-  color: var(--c-cocoa);
+  color: var(--c-ink);
   font-family: var(--font-body);
   font-size: var(--fs-s);
   font-weight: 700;
@@ -81,3 +81,61 @@
 .recipes-filter--active { background: var(--c-butter); }
 
 .recipes-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--sp-3); }
+
+/* ---------- Leyendo una foto ---------- */
+.reading { display: grid; gap: var(--sp-3); }
+.reading__stage { display: grid; grid-template-columns: 112px 1fr; gap: var(--sp-3); align-items: stretch; }
+.reading__photo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 140px;
+  overflow: hidden;
+  border: var(--line);
+  border-radius: var(--r-chip);
+  background: var(--c-butter-soft);
+}
+.reading__photo img { width: 100%; height: 100%; object-fit: cover; animation: reading-in var(--dur-med) ease both; }
+.reading__scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 26px;
+  background: linear-gradient(transparent, rgba(247, 215, 116, .75) 70%, var(--c-butter) 90%, transparent);
+  animation: reading-scan 1.8s ease-in-out infinite alternate;
+}
+.reading__sheet {
+  display: grid;
+  align-content: start;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: var(--line);
+  border-radius: var(--r-chip);
+  background: var(--c-white);
+}
+.skeleton {
+  display: block;
+  height: 12px;
+  border-radius: var(--r-pill);
+  background: linear-gradient(90deg, var(--c-cream-deep) 25%, var(--c-cream) 45%, var(--c-cream-deep) 65%) 0 0 / 300% 100%;
+  animation: skeleton-shine 1.4s linear infinite;
+}
+.skeleton--title { width: 70%; height: 18px; margin-bottom: var(--sp-1); }
+.reading__line { animation: skeleton-shine 1.4s linear infinite, reading-in var(--dur-med) var(--ease-bounce) both; }
+.reading__line--step { height: 10px; margin-top: var(--sp-1); }
+.reading__bar { height: 10px; overflow: hidden; border: 2px solid var(--c-cocoa); border-radius: var(--r-pill); background: var(--c-cream-deep); }
+.reading__bar span {
+  display: block;
+  height: 100%;
+  background: var(--c-tomato);
+  transform-origin: left;
+  transition: transform 1s ease-out;
+}
+.reading__text { margin: 0; text-align: center; font-weight: 800; }
+.reading__secs { color: var(--c-cocoa-soft); font-weight: 700; font-variant-numeric: tabular-nums; }
+@keyframes reading-scan { from { transform: translateY(-26px); } to { transform: translateY(140px); } }
+@keyframes skeleton-shine { to { background-position: -150% 0; } }
+@keyframes reading-in { from { opacity: 0; transform: translateX(-8px); } }
+.reduce-motion .reading__scan, .reduce-motion .skeleton { animation: none; }
+@media (prefers-reduced-motion: reduce) { .reading__scan, .skeleton { animation: none; } }

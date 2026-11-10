@@ -5,7 +5,10 @@ import '@fontsource/nunito/600.css'
 import '@fontsource/nunito/700.css'
 import './styles/tokens.css'
 import './styles/global.css'
+import './styles/dark.css'
+import './styles/feel.css'
 import App from './App.jsx'
+import { keepFocusedFieldVisible } from './feel/keyboard.js'
 import { StoreProvider } from './store/StoreProvider.jsx'
 
 createRoot(document.getElementById('root')).render(
@@ -15,6 +18,11 @@ createRoot(document.getElementById('root')).render(
     </StoreProvider>
   </StrictMode>,
 )
+
+keepFocusedFieldVisible()
+
+// iOS solo aplica :active (el estado «pulsado») si hay algún escuchador de toques en la página.
+document.addEventListener('touchstart', () => {}, { passive: true })
 
 // Service worker solo en producción (en desarrollo interferiría con la recarga en caliente).
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {

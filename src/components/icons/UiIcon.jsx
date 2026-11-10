@@ -31,7 +31,7 @@ export default function UiIcon({ name, size = 24, title, strokeWidth = 2.75, sty
       {...a11y}
       {...props}
     >
-      <path d={PATHS[name] ?? PATHS.plus} />
+      <path d={PATHS[name] ?? PATHS.plus} pathLength={1} />
     </svg>
   )
 }

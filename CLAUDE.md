@@ -22,3 +22,9 @@ nueva «Interactions»: esa exige la cabecera `Api-Revision`, que Google bloquea
 Además hay un modo manual sin claves (`manual.js`): se copian unas instrucciones, se usa la app de IA del móvil y se pega
 la respuesta. Los modelos disponibles están en `providers.js`. Sin clave real no se puede probar de extremo a extremo: los tests
 usan respuestas simuladas.
+
+Sensación y modo oscuro (`src/feel/`, `src/styles/feel.css`, `src/styles/dark.css`): vibración (`haptics.js`), deslizar filas
+(`useSwipeRow.js`), transiciones entre pantallas con View Transitions (`viewTransitions.js`: navegar con `useAppNavigate`,
+no con `useNavigate`), confeti y avisos con «Deshacer» (`components/ui/Toast.jsx`; borrar no pide confirmación, se deshace).
+Colores: el texto usa `--c-ink` (y `--c-ink-on-light` sobre mantequilla/menta/pasillos), las líneas y sombras `--c-cocoa`,
+el texto sobre tomate `--c-on-accent`. Los dibujos llevan la clase `art` (o son `.logui`/`.kitchen`) y conservan la paleta de día.

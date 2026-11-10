@@ -2,7 +2,7 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
     <meta name="theme-color" content="#E8513A" />
     <meta name="description" content="Listas de la compra y recetas con Logui, el beagle cocinero." />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
@@ -11,9 +11,24 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Logui" />
     <title>Logui el chef</title>
+    <script>
+      // Tema elegido en Ajustes, antes de pintar nada (evita un fogonazo claro al abrir en modo oscuro)
+      try {
+        const theme = JSON.parse(localStorage.getItem('logui:v1'))?.settings?.theme
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme
+      } catch {}
+    </script>
+    <style>
+      /* Pantalla de arranque: Logui mientras carga la app (React la sustituye al montar) */
+      .boot { position: fixed; inset: 0; display: grid; place-items: center; background: #FFF8E7; }
+      .boot img { width: 112px; height: 112px; animation: boot-in .5s cubic-bezier(.34, 1.56, .64, 1) both; }
+      @keyframes boot-in { from { transform: scale(.6); opacity: 0; } }
+      @media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .boot { background: #1F1510; } }
+      :root[data-theme='dark'] .boot { background: #1F1510; }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><div class="boot"><img src="icon.svg" alt="" /></div></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -1,0 +1,133 @@
+/* ---------- Sensación de app nativa ---------- */
+html {
+  touch-action: manipulation; /* sin zoom por doble toque ni espera de 300 ms */
+  -webkit-text-size-adjust: 100%;
+}
+body { overscroll-behavior-y: none; } /* sin rebote ni «tirar para recargar» dentro de la app */
+
+/* Lo que se toca no se selecciona ni abre el menú de «copiar enlace» al mantener pulsado */
+button, a, label, summary, [role='button'], .tile, .unit, .tabbar, .hero__title {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+img, svg { -webkit-user-drag: none; }
+
+/* ---------- Estado «pulsado» en todo lo que se toca ---------- */
+.item__main, .item__edit, .modal__close, .unit, .settings-switch, .add-to-list__option, .suggestion {
+  transition: transform var(--dur-fast) var(--ease-bounce), background-color var(--dur-fast) ease;
+}
+.item__main:not(:disabled):active { background: var(--c-cream); }
+.item__edit:active, .modal__close:active { transform: scale(.88); }
+.unit:active, .suggestion:active, .add-to-list__option:active { transform: scale(.95); }
+.settings-switch:active { transform: scale(.98); }
+.card a:active, .hero__back:active { transform: translateY(3px); }
+
+/* ---------- Transiciones entre pantallas (View Transitions) ---------- */
+.hero { view-transition-name: hero; }
+.tabbar { view-transition-name: tabbar; }
+.toast-zone { view-transition-name: toast; }
+.fab { view-transition-name: fab; }
+
+::view-transition-group(*) { animation-duration: 320ms; animation-timing-function: cubic-bezier(.2, .9, .25, 1); }
+::view-transition-old(root),
+::view-transition-new(root) { animation-duration: 280ms; animation-timing-function: cubic-bezier(.2, .9, .25, 1); }
+
+:root[data-vt='forward']::view-transition-old(root) { animation-name: vt-fade-out, vt-to-left; }
+:root[data-vt='forward']::view-transition-new(root) { animation-name: vt-fade-in, vt-from-right; }
+:root[data-vt='back']::view-transition-old(root) { animation-name: vt-fade-out, vt-to-right; }
+:root[data-vt='back']::view-transition-new(root) { animation-name: vt-fade-in, vt-from-left; }
+:root[data-vt='tab-right']::view-transition-old(root) { animation-name: vt-fade-out, vt-to-left-short; }
+:root[data-vt='tab-right']::view-transition-new(root) { animation-name: vt-fade-in, vt-from-right-short; }
+:root[data-vt='tab-left']::view-transition-old(root) { animation-name: vt-fade-out, vt-to-right-short; }
+:root[data-vt='tab-left']::view-transition-new(root) { animation-name: vt-fade-in, vt-from-left-short; }
+
+/* La cabecera cambia de tamaño sin deformar su texto; el botón flotante entra con un salto */
+::view-transition-old(hero), ::view-transition-new(hero) { height: 100%; object-fit: cover; object-position: top; }
+::view-transition-new(fab):only-child { animation: vt-pop 360ms var(--ease-bounce) both; }
+::view-transition-old(fab):only-child { animation: vt-fade-out 150ms both; }
+
+@keyframes vt-fade-in { from { opacity: 0; } }
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-from-right { from { transform: translateX(28%); } }
+@keyframes vt-to-left { to { transform: translateX(-18%); } }
+@keyframes vt-from-left { from { transform: translateX(-28%); } }
+@keyframes vt-to-right { to { transform: translateX(18%); } }
+@keyframes vt-from-right-short { from { transform: translateX(10%); } }
+@keyframes vt-to-left-short { to { transform: translateX(-10%); } }
+@keyframes vt-from-left-short { from { transform: translateX(-10%); } }
+@keyframes vt-to-right-short { to { transform: translateX(10%); } }
+@keyframes vt-pop { from { transform: scale(.4) translateY(30px); opacity: 0; } }
+
+/* ---------- Entrada escalonada de tarjetas y pasillos ---------- */
+.screen > :is(.list-card, .aisle, .recipe-card, .recipes-grid, .continue, .card) {
+  animation: rise-in calc(var(--dur-med) * 1.4) cubic-bezier(.2, .9, .3, 1.15) backwards;
+}
+.recipes-list > * { animation: rise-in calc(var(--dur-med) * 1.4) cubic-bezier(.2, .9, .3, 1.15) backwards; }
+.recipes-list > :nth-child(2) { animation-delay: 40ms; }
+.recipes-list > :nth-child(3) { animation-delay: 80ms; }
+.recipes-list > :nth-child(4) { animation-delay: 120ms; }
+.recipes-list > :nth-child(n+5) { animation-delay: 160ms; }
+.screen > :nth-child(2) { animation-delay: 30ms; }
+.screen > :nth-child(3) { animation-delay: 70ms; }
+.screen > :nth-child(4) { animation-delay: 110ms; }
+.screen > :nth-child(5) { animation-delay: 150ms; }
+.screen > :nth-child(6) { animation-delay: 190ms; }
+.screen > :nth-child(7) { animation-delay: 230ms; }
+.screen > :nth-child(n+8) { animation-delay: 260ms; }
+@keyframes rise-in { from { opacity: 0; transform: translateY(14px) scale(.98); } }
+.reduce-motion .screen > *, .reduce-motion .recipes-list > * { animation: none !important; }
+
+/* ---------- Confeti al completar ---------- */
+.confetti { position: fixed; left: 50%; top: 22%; z-index: 60; width: 0; height: 0; pointer-events: none; }
+.confetti__piece {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--size);
+  height: var(--size);
+  border: 2px solid var(--c-cocoa);
+  border-radius: 3px;
+  animation: confetti-fly 1.6s cubic-bezier(.15, .7, .4, 1) both;
+}
+.confetti__piece--round { border-radius: 50%; }
+.confetti__piece--strip { width: calc(var(--size) * .5); height: calc(var(--size) * 1.6); }
+.confetti__piece--star {
+  display: grid;
+  place-items: center;
+  border: none;
+  font-size: calc(var(--size) * 1.8);
+  line-height: 1;
+  -webkit-text-stroke: 1.5px var(--c-cocoa);
+}
+@keyframes confetti-fly {
+  0% { transform: translate(0, 0) scale(.3) rotate(0); opacity: 1; }
+  35% { transform: translate(var(--x), var(--y)) scale(1) rotate(calc(var(--spin) * .4)); opacity: 1; }
+  100% { transform: translate(calc(var(--x) * 1.25), calc(var(--y) + var(--fall))) scale(.9) rotate(var(--spin)); opacity: 0; }
+}
+
+/* ---------- Logui en la cabecera: se puede tocar y habla con bocadillos ---------- */
+.hero__logui { display: block; line-height: 0; }
+.hero__logui--button { padding: 0; border: none; background: none; cursor: pointer; transition: transform var(--dur-fast) var(--ease-bounce); }
+.hero__logui--button:active { transform: scale(.9) rotate(-4deg); }
+.hero__bubble {
+  position: absolute;
+  right: 84px;
+  bottom: 30px;
+  z-index: 3;
+  max-width: min(230px, calc(100% - 120px));
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  border: var(--line);
+  border-radius: 16px 16px 4px 16px;
+  background: var(--c-white);
+  color: var(--c-ink);
+  font-size: var(--fs-s);
+  font-weight: 800;
+  line-height: 1.25;
+  box-shadow: 0 3px 0 var(--c-cocoa);
+  transform-origin: 100% 100%;
+  animation: bubble-in var(--dur-med) var(--ease-bounce) both, bubble-out var(--dur-fast) ease-in 3.6s forwards;
+}
+@keyframes bubble-in { from { transform: scale(.4); opacity: 0; } }
+@keyframes bubble-out { to { transform: scale(.8); opacity: 0; } }

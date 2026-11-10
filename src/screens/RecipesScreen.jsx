@@ -7,11 +7,15 @@ import RecipeCard from '../components/recipes/RecipeCard.jsx'
 import PhotoImport from '../components/recipes/PhotoImport.jsx'
 import { useStore } from '../store/StoreProvider.jsx'
 import { allTags, filterByTag } from '../domain/recipes.js'
+import { pickLine } from '../data/loguiLines.js'
+import { useMascot } from '../mascot/useMascot.js'
 import '../components/recipes/recipes.css'
 
 export default function RecipesScreen() {
   const { state } = useStore()
   const [tag, setTag] = useState(null)
+  const [emptyLine] = useState(() => pickLine('emptyRecipes'))
+  const logui = useMascot('idle')
 
   const tags = useMemo(() => allTags(state.recipes), [state.recipes])
 
@@ -24,7 +28,9 @@ export default function RecipesScreen() {
     <main className="screen">
       <ScreenHeader
         title="Recetas"
-        mascot="idle"
+        mascot={logui.mood}
+        bubble={logui.bubble}
+        onMascotTap={() => logui.react('wave', pickLine(state.recipes.length ? 'recipeSaved' : 'emptyRecipes'))}
         actions={
           <>
           <PhotoImport round />
@@ -69,7 +75,11 @@ export default function RecipesScreen() {
       {state.recipes.length === 0 ? (
         <div className="empty">
           <Logui mood="think" size={110} />
-          <p>Tu libro de recetas está vacío.</p>
+          <p>
+            <strong>{emptyLine}</strong>
+            <br />
+            Escríbela a mano o hazle una foto y Logui la copia.
+          </p>
           <Link to="/recetas/nueva" className="btn btn--primary">Crear receta</Link>
           <PhotoImport />
         </div>

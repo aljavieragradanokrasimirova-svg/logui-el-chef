@@ -1,0 +1,49 @@
+.toast-zone {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--tabbar-h) + 88px + env(safe-area-inset-bottom));
+  z-index: 40;
+  display: grid;
+  justify-items: center;
+  padding: 0 var(--sp-4);
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: min(100%, 528px);
+  min-height: 60px;
+  padding: var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-3);
+  border: var(--line);
+  border-radius: var(--r-card);
+  background: var(--c-toast-bg);
+  color: var(--c-toast-ink);
+  box-shadow: 0 5px 0 rgba(0, 0, 0, .25);
+  pointer-events: auto;
+  animation: toast-in var(--dur-med) var(--ease-bounce) both;
+}
+.toast--leaving { animation: toast-out var(--dur-fast) ease-in both; }
+.toast__logui { margin: -10px 0 -6px; }
+.toast__text { flex: 1; min-width: 0; display: grid; }
+.toast__message { font-weight: 800; overflow-wrap: break-word; }
+.toast__detail { font-size: var(--fs-s); opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.toast__action {
+  flex: none;
+  min-height: 44px;
+  padding: 0 var(--sp-4);
+  border: var(--line);
+  border-color: var(--c-cocoa);
+  border-radius: var(--r-pill);
+  background: var(--c-butter);
+  color: #4A2E22;
+  font-family: var(--font-title);
+  font-size: var(--fs-m);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-bounce);
+}
+.toast__action:active { transform: scale(.92); }
+@keyframes toast-in { from { transform: translateY(24px) scale(.96); opacity: 0; } }
+@keyframes toast-out { to { transform: translateY(16px); opacity: 0; } }
+/* Con «reducir animaciones» la duración es 0 y onAnimationEnd sigue llegando */

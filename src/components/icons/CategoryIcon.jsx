@@ -167,11 +167,11 @@ const SVG_STYLE = {
 }
 
 /** Dibuja un icono por su id (`apple`, `fish`…). Decorativo salvo que se pase `title`. */
-export function Icon({ icon, size = 32, title, style, ...props }) {
+export function Icon({ icon, size = 32, title, style, className = '', ...props }) {
   const shape = ICONS[icon] ?? ICONS.basket
   const a11y = title ? { role: 'img', 'aria-label': title } : { 'aria-hidden': true }
   return (
-    <svg viewBox="0 0 48 48" width={size} height={size} style={{ ...SVG_STYLE, ...style }} {...a11y} {...props}>
+    <svg viewBox="0 0 48 48" width={size} height={size} className={`art ${className}`.trim()} style={{ ...SVG_STYLE, ...style }} {...a11y} {...props}>
       {shape}
     </svg>
   )
