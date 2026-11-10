@@ -4,6 +4,7 @@ import ScreenHeader from '../components/ui/ScreenHeader.jsx'
 import UiIcon from '../components/icons/UiIcon.jsx'
 import Logui from '../mascot/Logui.jsx'
 import RecipeCard from '../components/recipes/RecipeCard.jsx'
+import PhotoImport from '../components/recipes/PhotoImport.jsx'
 import { useStore } from '../store/StoreProvider.jsx'
 import { allTags, filterByTag } from '../domain/recipes.js'
 import '../components/recipes/recipes.css'
@@ -25,6 +26,8 @@ export default function RecipesScreen() {
         title="Recetas"
         mascot="idle"
         actions={
+          <>
+          <PhotoImport round />
           <Link
             to="/recetas/nueva"
             className="btn btn--round btn--small btn--accent"
@@ -32,6 +35,7 @@ export default function RecipesScreen() {
           >
             <UiIcon name="plus" />
           </Link>
+          </>
         }
       />
 
@@ -67,6 +71,7 @@ export default function RecipesScreen() {
           <Logui mood="think" size={110} />
           <p>Tu libro de recetas está vacío.</p>
           <Link to="/recetas/nueva" className="btn btn--primary">Crear receta</Link>
+          <PhotoImport />
         </div>
       ) : recipes.length === 0 ? (
         <div className="empty">

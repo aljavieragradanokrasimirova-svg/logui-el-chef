@@ -151,3 +151,8 @@
   font-size: var(--fs-s);
 }
 .step-row__text { min-height: 72px; padding: var(--sp-2) var(--sp-3); resize: vertical; line-height: 1.4; }
+
+/* Aviso al crear una receta desde una foto */
+.recipe-import { display: grid; gap: var(--sp-2); }
+.recipe-import p { margin: 0; }
+.recipe-import ul { margin: 0; padding-left: var(--sp-5); display: grid; gap: var(--sp-1); font-weight: 700; }

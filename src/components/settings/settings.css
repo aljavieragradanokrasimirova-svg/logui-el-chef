@@ -53,3 +53,9 @@
 .settings-install { justify-self: start; min-height: var(--tap); }
 .settings-install-status { margin: 0; color: var(--c-cocoa); font-weight: 700; }
 .settings-install-hint { margin: 0; font-size: var(--fs-s); color: var(--c-cocoa-soft); }
+
+.settings-key { display: grid; gap: var(--sp-3); justify-items: start; }
+.settings-key .label { width: 100%; }
+.settings-key__saved { margin: 0; font-weight: 700; }
+.settings-key code { padding: 2px var(--sp-2); border-radius: var(--r-chip); background: var(--c-cream-deep); font-weight: 800; }
+.settings-link { color: var(--c-cocoa-soft); font-size: var(--fs-s); font-weight: 700; text-underline-offset: 3px; }
