@@ -8,6 +8,7 @@ export const PROVIDERS = [
     label: 'Gemini (Google)',
     keyUrl: 'https://aistudio.google.com/apikey',
     keyPlaceholder: 'AIza…',
+    free: true,
     note: 'Tiene nivel gratuito, con límites de uso. En ese nivel Google puede usar lo que envías para mejorar sus productos.',
     models: [
       { id: 'gemini-3.6-flash', label: 'Gemini 3.6 Flash · recomendado' },

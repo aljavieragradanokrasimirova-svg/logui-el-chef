@@ -50,6 +50,15 @@ export default function AiSettingsCard() {
     setTest(result)
   }
 
+  async function pasteKey() {
+    try {
+      setKeyText((await navigator.clipboard.readText()).trim())
+      setSaved('')
+    } catch {
+      setSaved('El navegador no deja pegar con el botón: mantén pulsado el campo y elige «Pegar».')
+    }
+  }
+
   function removeKey() {
     update({ ...config, keys: { ...config.keys, [provider.id]: '' } })
     setSaved('Clave quitada.')
@@ -118,6 +127,16 @@ export default function AiSettingsCard() {
         </div>
       ) : (
         <form className="settings-key" onSubmit={saveKey}>
+          <ol className="settings-steps">
+            <li>
+              <a className="btn btn--primary btn--small" href={provider.keyUrl} target="_blank" rel="noreferrer">
+                {provider.free ? 'Conseguir mi clave gratis' : 'Conseguir mi clave'}
+              </a>
+              <span>Se abre {new URL(provider.keyUrl).hostname} en otra pestaña: inicia sesión y pulsa «Crear clave».</span>
+            </li>
+            <li>Copia la clave que te da.</li>
+            <li>Vuelve aquí y pégala:</li>
+          </ol>
           <label className="label">
             Clave de API de {provider.label}
             <input
@@ -130,10 +149,10 @@ export default function AiSettingsCard() {
               onChange={(e) => setKeyText(e.target.value)}
             />
           </label>
-          <Button type="submit" variant="primary" size="small" disabled={!keyText.trim()}>Guardar clave</Button>
-          <a className="settings-link" href={provider.keyUrl} target="_blank" rel="noreferrer">
-            Crear una clave en {new URL(provider.keyUrl).hostname}
-          </a>
+          <div className="settings-key__buttons">
+            <Button size="small" onClick={pasteKey}>Pegar</Button>
+            <Button type="submit" variant="primary" size="small" disabled={!keyText.trim()}>Guardar clave</Button>
+          </div>
         </form>
       )}
 
