@@ -11,7 +11,7 @@ import './settings.css'
 const mask = (key) => (key.length > 8 ? `${key.slice(0, 4)}…${key.slice(-4)}` : '••••')
 
 /**
- * Ajustes de «leer recetas desde una foto»: proveedor (Claude o GPT), modelo y clave de API.
+ * Ajustes de «leer recetas desde una foto»: modelo de Gemini y clave de API.
  * Todo se guarda solo en este dispositivo y fuera de las copias de seguridad.
  */
 export default function AiSettingsCard() {
@@ -72,6 +72,7 @@ export default function AiSettingsCard() {
         de tu cuenta (no vale la suscripción de chat). Sin clave también puedes usar tu propia app de IA copiando y pegando.
       </p>
 
+      {PROVIDERS.length > 1 && (
       <fieldset className="picker">
         <legend className="picker__label">Proveedor</legend>
         <div className="units">
@@ -89,6 +90,7 @@ export default function AiSettingsCard() {
           ))}
         </div>
       </fieldset>
+      )}
 
       <fieldset className="picker">
         <legend className="picker__label">Modelo</legend>

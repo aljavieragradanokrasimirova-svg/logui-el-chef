@@ -2,8 +2,6 @@ import { describe, it, expect, vi } from 'vitest'
 import { AiError, fromHttp } from './errors.js'
 import { buildDraft } from './draft.js'
 import { RECIPE_SCHEMA } from './schema.js'
-import { callAnthropic } from './anthropic.js'
-import { callOpenAI } from './openai.js'
 import { readRecipeFromImage } from './readRecipe.js'
 import { testConnection } from './testConnection.js'
 import { AI_STORAGE_KEY, defaultAiConfig, loadAiConfig, saveAiConfig, activeSelection } from './config.js'
@@ -109,83 +107,18 @@ describe('buildDraft', () => {
   })
 })
 
-describe('callAnthropic', () => {
-  const clientWith = (create) => async () => ({ messages: { create } })
-
-  it('envía la imagen y el esquema y devuelve el texto', async () => {
-    const create = vi.fn().mockResolvedValue({ stop_reason: 'end_turn', content: [{ type: 'thinking' }, { type: 'text', text: '{"a":1}' }] })
-    const text = await callAnthropic({ apiKey: 'k', model: 'claude-opus-5-5', image, createClient: clientWith(create) })
-    expect(text).toBe('{"a":1}')
-    const [body] = create.mock.calls[0]
-    expect(body.model).toBe('claude-opus-5-5')
-    expect(body.output_config.format).toEqual({ type: 'json_schema', schema: RECIPE_SCHEMA })
-    expect(body.messages[0].content[0]).toEqual({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: 'AAAA' } })
-    expect(body).not.toHaveProperty('temperature')
-  })
-
-  it.each([
-    [{ stop_reason: 'refusal', content: [] }, 'refusal'],
-    [{ stop_reason: 'max_tokens', content: [{ type: 'text', text: '{' }] }, 'truncated'],
-    [{ stop_reason: 'end_turn', content: [] }, 'invalid'],
-  ])('respuesta %j → %s', async (response, code) => {
-    await expect(callAnthropic({ apiKey: 'k', model: 'm', image, createClient: clientWith(async () => response) })).rejects.toMatchObject({ code })
-  })
-
-  it('traduce los errores del SDK', async () => {
-    const fail = (error) => callAnthropic({ apiKey: 'k', model: 'm', image, createClient: clientWith(async () => { throw error }) })
-    await expect(fail(Object.assign(new Error('x'), { status: 401 }))).rejects.toMatchObject({ code: 'auth' })
-    await expect(fail(new Error('connection error'))).rejects.toMatchObject({ code: 'network' })
-    const abort = Object.assign(new Error('abort'), { name: 'AbortError' })
-    await expect(fail(abort)).rejects.toMatchObject({ name: 'AbortError' })
-  })
-})
-
-describe('callOpenAI', () => {
-  const ok = (data) => async () => ({ ok: true, status: 200, json: async () => data })
-  const message = (parts, extra = {}) => ({ status: 'completed', output: [{ type: 'reasoning' }, { type: 'message', content: parts }], ...extra })
-
-  it('envía la petición documentada y devuelve el texto', async () => {
-    const fetchImpl = vi.fn(ok(message([{ type: 'output_text', text: '{"a":1}' }])))
-    const text = await callOpenAI({ apiKey: 'sk-test', model: 'gpt-6.1-sol', image, fetchImpl })
-    expect(text).toBe('{"a":1}')
-    const [url, init] = fetchImpl.mock.calls[0]
-    expect(url).toBe('https://api.openai.com/v1/responses')
-    expect(init.headers.Authorization).toBe('Bearer sk-test')
-    const body = JSON.parse(init.body)
-    expect(body.model).toBe('gpt-6.1-sol')
-    expect(body.store).toBe(false)
-    expect(body.text.format).toMatchObject({ type: 'json_schema', name: 'receta', strict: true })
-    expect(body.input[0].content[1]).toMatchObject({ type: 'input_image', image_url: 'data:image/jpeg;base64,AAAA' })
-  })
-
-  it('detecta rechazos, cortes y respuestas vacías', async () => {
-    const run = (data) => callOpenAI({ apiKey: 'k', model: 'm', image, fetchImpl: ok(data) })
-    await expect(run(message([{ type: 'refusal', refusal: 'no' }]))).rejects.toMatchObject({ code: 'refusal' })
-    await expect(run(message([{ type: 'output_text', text: '{' }], { status: 'incomplete' }))).rejects.toMatchObject({ code: 'truncated' })
-    await expect(run(message([]))).rejects.toMatchObject({ code: 'invalid' })
-  })
-
-  it('traduce los errores HTTP y de red', async () => {
-    const http = (status, error) => async () => ({ ok: false, status, json: async () => ({ error }) })
-    const run = (fetchImpl) => callOpenAI({ apiKey: 'k', model: 'm', image, fetchImpl })
-    await expect(run(http(401, { message: 'Incorrect API key' }))).rejects.toMatchObject({ code: 'auth' })
-    await expect(run(http(429, { message: 'quota', code: 'insufficient_quota' }))).rejects.toMatchObject({ code: 'quota' })
-    await expect(run(async () => { throw new TypeError('Failed to fetch') })).rejects.toMatchObject({ code: 'network' })
-  })
-})
-
 describe('readRecipeFromImage', () => {
   it('une llamada, análisis y borrador', async () => {
     const call = vi.fn().mockResolvedValue('```json\n' + JSON.stringify(extracted()) + '\n```')
-    const { draft, warnings } = await readRecipeFromImage({ provider: 'openai', model: 'm', apiKey: ' sk-x ', image, call, makeId: ids() })
+    const { draft, warnings } = await readRecipeFromImage({ provider: 'gemini', model: 'm', apiKey: ' sk-x ', image, call, makeId: ids() })
     expect(draft.name).toBe('Tortilla de patatas')
     expect(warnings).toHaveLength(1)
     expect(call).toHaveBeenCalledWith(expect.objectContaining({ apiKey: 'sk-x', model: 'm', image }))
   })
 
   it('exige clave y entiende solo JSON', async () => {
-    await expect(readRecipeFromImage({ provider: 'openai', apiKey: '  ', image })).rejects.toMatchObject({ code: 'no-key' })
-    await expect(readRecipeFromImage({ provider: 'openai', apiKey: 'k', image, call: async () => 'hola' })).rejects.toMatchObject({ code: 'invalid' })
+    await expect(readRecipeFromImage({ provider: 'gemini', apiKey: '  ', image })).rejects.toMatchObject({ code: 'no-key' })
+    await expect(readRecipeFromImage({ provider: 'gemini', apiKey: 'k', image, call: async () => 'hola' })).rejects.toMatchObject({ code: 'invalid' })
     await expect(readRecipeFromImage({ provider: 'otro', apiKey: 'k', image })).rejects.toMatchObject({ code: 'bad-request' })
   })
 })
@@ -194,19 +127,19 @@ describe('config de la IA', () => {
   it('guarda aparte del estado de la app y recupera lo guardado', () => {
     const storage = memoryStorage()
     const config = defaultAiConfig()
-    config.provider = 'openai'
-    config.keys.openai = 'sk-abc'
-    config.models.openai = 'gpt-6-astra'
+    config.provider = 'gemini'
+    config.keys.gemini = 'AIza-abc'
+    config.models.gemini = 'gemini-3.5-flash-lite'
     expect(saveAiConfig(config, storage)).toBe(true)
     expect(AI_STORAGE_KEY).not.toBe('logui:v1')
     const loaded = loadAiConfig(storage)
-    expect(loaded.provider).toBe('openai')
-    expect(activeSelection(loaded)).toEqual({ provider: 'openai', model: 'gpt-6-astra', apiKey: 'sk-abc' })
+    expect(loaded.provider).toBe('gemini')
+    expect(activeSelection(loaded)).toEqual({ provider: 'gemini', model: 'gemini-3.5-flash-lite', apiKey: 'AIza-abc' })
   })
 
   it('ignora datos dañados o desconocidos', () => {
     expect(loadAiConfig(memoryStorage({ [AI_STORAGE_KEY]: '{roto' }))).toEqual(defaultAiConfig())
-    const odd = JSON.stringify({ provider: 'x', models: { anthropic: 'modelo-raro' }, keys: { anthropic: 5 } })
+    const odd = JSON.stringify({ provider: 'x', models: { gemini: 'modelo-raro' }, keys: { gemini: 5 } })
     expect(loadAiConfig(memoryStorage({ [AI_STORAGE_KEY]: odd }))).toEqual(defaultAiConfig())
     expect(loadAiConfig(null)).toEqual(defaultAiConfig())
   })

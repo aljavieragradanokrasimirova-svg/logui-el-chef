@@ -1,10 +1,8 @@
-import { callAnthropic } from './anthropic.js'
-import { callOpenAI } from './openai.js'
 import { callGemini } from './gemini.js'
 import { buildDraft } from './draft.js'
 import { AiError } from './errors.js'
 
-export const CALLS = { anthropic: callAnthropic, openai: callOpenAI, gemini: callGemini }
+export const CALLS = { gemini: callGemini }
 
 const TIMEOUT_MS = 45_000
 const RETRY_DELAY_MS = 2_000
