@@ -7,6 +7,8 @@ import Logui from '../mascot/Logui.jsx'
 import RenameModal from '../components/lists/RenameModal.jsx'
 import ListCard from '../components/lists/ListCard.jsx'
 import { useStore } from '../store/StoreProvider.jsx'
+import { pickLine } from '../data/loguiLines.js'
+import { useMascot } from '../mascot/useMascot.js'
 import '../components/lists/lists.css'
 import { useAppNavigate } from '../feel/viewTransitions.js'
 
@@ -14,6 +16,8 @@ export default function ListsScreen() {
   const navigate = useAppNavigate()
   const { state, actions } = useStore()
   const [creating, setCreating] = useState(false)
+  const [emptyLine] = useState(() => pickLine('emptyLists'))
+  const logui = useMascot('idle')
 
   const active = state.lists
     .filter((list) => list.archivedAt === null)
@@ -28,7 +32,12 @@ export default function ListsScreen() {
 
   return (
     <main className="screen">
-      <ScreenHeader title="Mis listas" mascot="idle" />
+      <ScreenHeader
+        title="Mis listas"
+        mascot={logui.mood}
+        bubble={logui.bubble}
+        onMascotTap={() => logui.react('wave', pickLine(active.length ? 'idle' : 'emptyLists'))}
+      />
 
       {active.length > 0 ? (
         <>
@@ -40,7 +49,9 @@ export default function ListsScreen() {
       ) : (
         <div className="empty">
           <Logui mood="think" size={110} />
-          <p>Todavía no tienes listas.</p>
+          <p>
+            <strong>{emptyLine}</strong>
+          </p>
           {createButton}
         </div>
       )}

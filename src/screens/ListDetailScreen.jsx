@@ -20,6 +20,8 @@ import Logui from '../mascot/Logui.jsx'
 import { useFlip } from '../components/motion/useFlip.js'
 import { haptic } from '../feel/haptics.js'
 import { pickLine } from '../data/loguiLines.js'
+import { useMascot } from '../mascot/useMascot.js'
+import Confetti from '../feel/Confetti.jsx'
 import '../components/lists/lists.css'
 import { useAppNavigate } from '../feel/viewTransitions.js'
 
@@ -32,6 +34,11 @@ export default function ListDetailScreen() {
   const [dialog, setDialog] = useState(null) // 'menu' | 'rename' | null
   const [adding, setAdding] = useState(false)
   const toast = useToast()
+  const [burst, setBurst] = useState(0) // confeti al completar
+  const [emptyLine] = useState(() => pickLine('emptyList'))
+  const done = Boolean(list) && isComplete(list)
+  const hasPending = Boolean(list) && list.archivedAt === null && list.items.some((i) => !i.checked)
+  const logui = useMascot(done ? 'celebrate' : 'idle', { idleLine: hasPending ? () => pickLine('idle') : null })
 
   const pendingNames = useMemo(
     () => (list ? list.items.filter((i) => !i.checked).map((i) => i.name) : []),
@@ -58,8 +65,10 @@ export default function ListDetailScreen() {
   const editing = list.items.find((i) => i.id === editingId) ?? null
   const close = () => setDialog(null)
   const archive = () => {
+    haptic('tap')
     actions.archiveList(list.id)
     navigate('/listas')
+    toast.show({ message: pickLine('listArchived'), detail: list.name, mood: 'wave', duration: 3000 })
   }
   const reuse = () => navigate(`/listas/${actions.reuseList(list.id)}`)
 
@@ -68,6 +77,19 @@ export default function ListDetailScreen() {
     const completes = item && !item.checked && checked === total - 1
     haptic(completes ? 'success' : 'tap')
     actions.toggleItem(list.id, itemId)
+    if (completes) {
+      setBurst((n) => n + 1)
+      logui.react('celebrate', pickLine('listDone'), 3500)
+    } else if (item && !item.checked) {
+      // Logui se alegra al marcar; a veces lo comenta (siempre al llegar a la mitad)
+      const half = checked + 1 === Math.ceil(total / 2) && total >= 4
+      logui.react('wave', half ? '¡Ya vamos por la mitad!' : Math.random() < 0.3 ? pickLine('itemChecked') : '', 1400)
+    }
+  }
+
+  const closeAdding = (count) => {
+    setAdding(false)
+    if (count > 0) logui.react('wave', pickLine('itemAdded'), 2600)
   }
 
   // Borrar no pide confirmación: se puede deshacer desde el aviso durante unos segundos.
@@ -100,10 +122,13 @@ export default function ListDetailScreen() {
 
   return (
     <main className="screen">
+      <Confetti burst={burst} />
       <ScreenHeader
         title={list.name}
         backTo={backTo}
-        mascot={complete ? 'celebrate' : 'idle'}
+        mascot={logui.mood}
+        bubble={logui.bubble}
+        onMascotTap={() => logui.react('wave', pickLine(complete ? 'listDone' : hasPending ? 'idle' : 'emptyList'), 2600)}
         actions={
           <Button round size="small" aria-label="Opciones de la lista" onClick={() => setDialog('menu')}>
             <UiIcon name="more" />
@@ -144,7 +169,11 @@ export default function ListDetailScreen() {
       {total === 0 && !archived && (
         <div className="empty">
           <Logui mood="think" size={100} />
-          <p>La lista está vacía. Pulsa «Añadir» para apuntar el primer producto.</p>
+          <p>
+            <strong>{emptyLine}</strong>
+            <br />
+            Pulsa «Añadir» para apuntar el primer producto.
+          </p>
         </div>
       )}
 
@@ -206,7 +235,7 @@ export default function ListDetailScreen() {
 
       <AddItemSheet
         open={adding}
-        onClose={() => setAdding(false)}
+        onClose={closeAdding}
         memory={state.productMemory}
         exclude={pendingNames}
         onAdd={(item) => actions.addItem(list.id, item)}

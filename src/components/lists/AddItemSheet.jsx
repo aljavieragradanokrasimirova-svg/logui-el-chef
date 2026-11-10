@@ -15,11 +15,22 @@ const EMPTY = { categoryId: DEFAULT_CATEGORY, quantity: null, unit: DEFAULT_UNIT
 /**
  * Panel inferior para añadir productos: nombre con sugerencias (memoria + catálogo), pasillo en baldosas,
  * cantidad − / + y unidad. Tras añadir se queda abierto y limpio para seguir añadiendo.
+ * `onClose(n)` recibe cuántos productos se añadieron mientras estuvo abierto.
  */
 export default function AddItemSheet({ open, onClose, memory, exclude, onAdd }) {
+  // Al cerrar se dice cuántos se añadieron (Logui lo comenta)
+  const count = useRef(0)
+  useEffect(() => {
+    if (open) count.current = 0
+  }, [open])
+  const add = (item) => {
+    count.current += 1
+    onAdd(item)
+  }
+  const close = () => onClose?.(count.current)
   return (
-    <Modal open={open} onClose={onClose} title="Añadir producto" variant="sheet">
-      {open && <AddItemBody memory={memory} exclude={exclude} onAdd={onAdd} onClose={onClose} />}
+    <Modal open={open} onClose={close} title="Añadir producto" variant="sheet">
+      {open && <AddItemBody memory={memory} exclude={exclude} onAdd={add} onClose={close} />}
     </Modal>
   )
 }
