@@ -17,7 +17,7 @@ export function emptyState() {
     lists: [],
     recipes: [],
     productMemory: {},
-    settings: { reduceMotion: false },
+    settings: { reduceMotion: false, haptics: true, theme: 'auto' },
   }
 }
 
@@ -126,7 +126,18 @@ export function sanitizeState(raw) {
     lists: uniqueById(lists),
     recipes: uniqueById(recipes),
     productMemory: sanitizeProductMemory(raw.productMemory),
-    settings: { reduceMotion: isObject(raw.settings) && raw.settings.reduceMotion === true },
+    settings: sanitizeSettings(raw.settings),
+  }
+}
+
+export const THEMES = ['auto', 'light', 'dark']
+
+function sanitizeSettings(raw) {
+  const settings = isObject(raw) ? raw : {}
+  return {
+    reduceMotion: settings.reduceMotion === true,
+    haptics: settings.haptics !== false,
+    theme: THEMES.includes(settings.theme) ? settings.theme : 'auto',
   }
 }
 

@@ -1,18 +1,32 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ScreenHeader from '../components/ui/ScreenHeader.jsx'
 import Button from '../components/ui/Button.jsx'
-import Modal, { ModalActions } from '../components/ui/Modal.jsx'
+import { useToast } from '../components/ui/Toast.jsx'
 import UiIcon from '../components/icons/UiIcon.jsx'
 import ListCard from '../components/lists/ListCard.jsx'
 import Logui from '../mascot/Logui.jsx'
 import { useStore } from '../store/StoreProvider.jsx'
+import { haptic } from '../feel/haptics.js'
+import { pickLine } from '../data/loguiLines.js'
 import '../components/lists/lists.css'
 
 export default function HistoryScreen() {
   const navigate = useNavigate()
   const { state, actions } = useStore()
-  const [deleting, setDeleting] = useState(null)
+  const toast = useToast()
+
+  const remove = (list) => {
+    const index = state.lists.findIndex((l) => l.id === list.id)
+    haptic('remove')
+    actions.deleteList(list.id)
+    toast.show({
+      message: pickLine('listDeleted'),
+      detail: list.name,
+      mood: 'think',
+      actionLabel: 'Deshacer',
+      onAction: () => actions.restoreList(list, index),
+    })
+  }
 
   const archived = state.lists
     .filter((list) => list.archivedAt !== null)
@@ -36,7 +50,7 @@ export default function HistoryScreen() {
               round
               size="small"
               aria-label={`Borrar ${list.name}`}
-              onClick={() => setDeleting(list)}
+              onClick={() => remove(list)}
             >
               <UiIcon name="trash" />
             </Button>
@@ -49,28 +63,6 @@ export default function HistoryScreen() {
         </div>
       )}
 
-      <Modal open={deleting !== null} onClose={() => setDeleting(null)} title="¿Borrar la lista?">
-        {deleting && (
-          <>
-            <p style={{ margin: 0 }}>
-              Se borrará «{deleting.name}». No se puede deshacer.
-            </p>
-            <ModalActions>
-              <Button size="small" onClick={() => setDeleting(null)}>Cancelar</Button>
-              <Button
-                size="small"
-                variant="primary"
-                onClick={() => {
-                  actions.deleteList(deleting.id)
-                  setDeleting(null)
-                }}
-              >
-                Borrar
-              </Button>
-            </ModalActions>
-          </>
-        )}
-      </Modal>
     </main>
   )
 }

@@ -4,6 +4,9 @@ import ScreenHeader from '../components/ui/ScreenHeader.jsx'
 import Button from '../components/ui/Button.jsx'
 import Card from '../components/ui/Card.jsx'
 import Modal, { ModalActions } from '../components/ui/Modal.jsx'
+import { useToast } from '../components/ui/Toast.jsx'
+import { haptic } from '../feel/haptics.js'
+import { pickLine } from '../data/loguiLines.js'
 import UiIcon from '../components/icons/UiIcon.jsx'
 import CategoryIcon, { Icon } from '../components/icons/CategoryIcon.jsx'
 import ItemFields from '../components/pickers/ItemFields.jsx'
@@ -67,7 +70,7 @@ function RecipeForm({ recipe, draft, warnings = [] }) {
   const [servings, setServings] = useState(String(source?.servings ?? 2))
   const [rows, setRows] = useState(() => (source ? toRows(source) : [emptyRow()]))
   const [steps, setSteps] = useState(() => (source?.steps.length ? source.steps : ['']))
-  const [confirmDelete, setConfirmDelete] = useState(false)
+  const toast = useToast()
   const [detailsKey, setDetailsKey] = useState(null) // fila cuyo pasillo/cantidad/unidad se está editando
   const detailsRow = rows.find((r) => r.key === detailsKey) ?? null
   const lastRowRef = useRef(null)
@@ -104,7 +107,25 @@ function RecipeForm({ recipe, draft, warnings = [] }) {
       ingredients: rows.map(({ key, ...ing }) => ing),
       steps,
     })
+    haptic('tap')
+    toast.show({ message: pickLine('recipeSaved'), detail: name.trim(), mood: 'celebrate', duration: 2500 })
     navigate(`/recetas/${id}`, { replace: true })
+  }
+
+  // Sin confirmación: el aviso deja deshacerlo unos segundos.
+  function remove() {
+    const index = state.recipes.findIndex((r) => r.id === recipe.id)
+    const snapshot = recipe
+    haptic('remove')
+    actions.deleteRecipe(recipe.id)
+    navigate('/recetas', { replace: true })
+    toast.show({
+      message: '¡Receta al cubo!',
+      detail: snapshot.name,
+      mood: 'think',
+      actionLabel: 'Deshacer',
+      onAction: () => actions.restoreRecipe(snapshot, index),
+    })
   }
 
   return (
@@ -206,7 +227,7 @@ function RecipeForm({ recipe, draft, warnings = [] }) {
 
         <div className="recipe-form__actions">
           {editing && (
-            <Button variant="ghost" onClick={() => setConfirmDelete(true)} style={{ color: 'var(--c-tomato-dark)', marginRight: 'auto' }}>
+            <Button variant="ghost" onClick={remove} style={{ color: 'var(--c-tomato-dark)', marginRight: 'auto' }}>
               <UiIcon name="trash" /> Borrar
             </Button>
           )}
@@ -230,22 +251,6 @@ function RecipeForm({ recipe, draft, warnings = [] }) {
         )}
       </Modal>
 
-      <Modal open={confirmDelete} onClose={() => setConfirmDelete(false)} title="¿Borrar la receta?">
-        <p style={{ margin: 0 }}>Se borrará «{recipe?.name}». No se puede deshacer.</p>
-        <ModalActions>
-          <Button size="small" onClick={() => setConfirmDelete(false)}>Cancelar</Button>
-          <Button
-            size="small"
-            variant="primary"
-            onClick={() => {
-              actions.deleteRecipe(recipe.id)
-              navigate('/recetas', { replace: true })
-            }}
-          >
-            Borrar
-          </Button>
-        </ModalActions>
-      </Modal>
     </main>
   )
 }

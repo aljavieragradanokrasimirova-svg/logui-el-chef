@@ -7,7 +7,24 @@ import { useStore } from '../store/StoreProvider.jsx'
 import { exportBackup, parseBackup } from '../store/storage.js'
 import { useInstallPrompt } from '../pwa/useInstallPrompt.js'
 import AiSettingsCard from '../components/settings/AiSettingsCard.jsx'
+import '../components/pickers/pickers.css'
 import '../components/settings/settings.css'
+
+const THEME_OPTIONS = [['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']]
+
+function Switch({ on, onToggle, label, hint }) {
+  return (
+    <button type="button" role="switch" aria-checked={on} className="settings-switch" onClick={onToggle}>
+      <span className="settings-switch__text">
+        <span className="settings-switch__label">{label}</span>
+        <span className="settings-switch__hint">{hint}</span>
+      </span>
+      <span className="settings-switch__track" aria-hidden="true">
+        <span className="settings-switch__thumb" />
+      </span>
+    </button>
+  )
+}
 
 const listCount = (n) => `${n} ${n === 1 ? 'lista' : 'listas'}`
 const recipeCount = (n) => `${n} ${n === 1 ? 'receta' : 'recetas'}`
@@ -104,22 +121,36 @@ export default function SettingsScreen() {
       </Card>
 
       <Card className="settings-card">
-        <h2>Animaciones</h2>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={reduceMotion}
-          className="settings-switch"
-          onClick={toggleMotion}
-        >
-          <span className="settings-switch__text">
-            <span className="settings-switch__label">Reducir animaciones</span>
-            <span className="settings-switch__hint">Quita los rebotes y movimientos.</span>
-          </span>
-          <span className="settings-switch__track" aria-hidden="true">
-            <span className="settings-switch__thumb" />
-          </span>
-        </button>
+        <h2>Aspecto</h2>
+        <fieldset className="picker">
+          <legend className="picker__label">Tema</legend>
+          <div className="units">
+            {THEME_OPTIONS.map(([id, label]) => (
+              <label key={id} className={`unit${state.settings.theme === id ? ' unit--on' : ''}`}>
+                <input
+                  type="radio"
+                  name="theme"
+                  className="sr-only"
+                  checked={state.settings.theme === id}
+                  onChange={() => actions.updateSettings({ theme: id })}
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <Switch
+          on={reduceMotion}
+          onToggle={toggleMotion}
+          label="Reducir animaciones"
+          hint="Quita los rebotes y movimientos."
+        />
+        <Switch
+          on={state.settings.haptics}
+          onToggle={() => actions.updateSettings({ haptics: !state.settings.haptics })}
+          label="Vibración"
+          hint="Una vibración suave al marcar, añadir o borrar (en los móviles que lo permiten)."
+        />
       </Card>
 
       <AiSettingsCard />

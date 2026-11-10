@@ -1,0 +1,24 @@
+/* ---------- Sensación de app nativa ---------- */
+html {
+  touch-action: manipulation; /* sin zoom por doble toque ni espera de 300 ms */
+  -webkit-text-size-adjust: 100%;
+}
+body { overscroll-behavior-y: none; } /* sin rebote ni «tirar para recargar» dentro de la app */
+
+/* Lo que se toca no se selecciona ni abre el menú de «copiar enlace» al mantener pulsado */
+button, a, label, summary, [role='button'], .tile, .unit, .tabbar, .hero__title {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+img, svg { -webkit-user-drag: none; }
+
+/* ---------- Estado «pulsado» en todo lo que se toca ---------- */
+.item__main, .item__edit, .modal__close, .unit, .settings-switch, .add-to-list__option, .suggestion {
+  transition: transform var(--dur-fast) var(--ease-bounce), background-color var(--dur-fast) ease;
+}
+.item__main:not(:disabled):active { background: var(--c-cream); }
+.item__edit:active, .modal__close:active { transform: scale(.88); }
+.unit:active, .suggestion:active, .add-to-list__option:active { transform: scale(.95); }
+.settings-switch:active { transform: scale(.98); }
+.card a:active, .hero__back:active { transform: translateY(3px); }

@@ -12,6 +12,9 @@
   --c-white: #FFFFFF;
   --c-caramel: #D9893F;
   --c-overlay: rgba(74, 46, 34, .45);
+  --c-toast-bg: #4A2E22;
+  --c-toast-ink: #FFF8E7;
+  --c-wash: #D3F0E4; /* menta muy clara: destello al marcar */
 
   /* Tipografía */
   --font-title: 'Baloo 2', 'Nunito', system-ui, sans-serif;

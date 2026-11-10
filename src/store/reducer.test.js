@@ -47,6 +47,56 @@ describe('reducer', () => {
     expect(state.productMemory.leche.unit).toBe('paquete')
   })
 
+  it('deshacer: un producto borrado vuelve a su sitio', () => {
+    const { state } = run((a, get) => {
+      const id = a.createList('Súper')
+      a.addItem(id, { name: 'Pan' })
+      a.addItem(id, { name: 'Leche' })
+      a.addItem(id, { name: 'Huevos' })
+      const item = get().lists[0].items[1]
+      a.removeItem(id, item.id)
+      a.restoreItem(id, item, 1)
+      a.restoreItem(id, item, 1) // dos veces: no se duplica
+    })
+    expect(state.lists[0].items.map((i) => i.name)).toEqual(['Pan', 'Leche', 'Huevos'])
+  })
+
+  it('deshacer: una lista borrada vuelve a su sitio', () => {
+    const { state } = run((a, get) => {
+      a.createList('A')
+      const b = a.createList('B')
+      a.createList('C')
+      const list = get().lists[1]
+      a.deleteList(b)
+      a.restoreList(list, 1)
+      a.restoreList(list, 1)
+    })
+    expect(state.lists.map((l) => l.name)).toEqual(['A', 'B', 'C'])
+  })
+
+  it('deshacer: una receta borrada vuelve', () => {
+    const { state } = run((a, get) => {
+      a.saveRecipe({ name: 'Tortilla', ingredients: [], steps: [] })
+      a.saveRecipe({ name: 'Gazpacho', ingredients: [], steps: [] })
+      const recipe = get().recipes[0]
+      a.deleteRecipe(recipe.id)
+      a.restoreRecipe(recipe, 0)
+    })
+    expect(state.recipes.map((r) => r.name)).toEqual(['Tortilla', 'Gazpacho'])
+  })
+
+  it('no se restaura un producto en una lista archivada', () => {
+    const { state } = run((a, get) => {
+      const id = a.createList('Súper')
+      a.addItem(id, { name: 'Pan' })
+      const item = get().lists[0].items[0]
+      a.removeItem(id, item.id)
+      a.archiveList(id)
+      a.restoreItem(id, item, 0)
+    })
+    expect(state.lists[0].items).toEqual([])
+  })
+
   it('marcar, archivar y reutilizar', () => {
     const { state, results } = run((a) => {
       const id = a.createList('Súper')
