@@ -7,6 +7,7 @@ import './styles/tokens.css'
 import './styles/global.css'
 import './styles/feel.css'
 import App from './App.jsx'
+import { keepFocusedFieldVisible } from './feel/keyboard.js'
 import { StoreProvider } from './store/StoreProvider.jsx'
 
 createRoot(document.getElementById('root')).render(
@@ -16,6 +17,8 @@ createRoot(document.getElementById('root')).render(
     </StoreProvider>
   </StrictMode>,
 )
+
+keepFocusedFieldVisible()
 
 // iOS solo aplica :active (el estado «pulsado») si hay algún escuchador de toques en la página.
 document.addEventListener('touchstart', () => {}, { passive: true })

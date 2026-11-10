@@ -112,3 +112,17 @@ export function suggestProducts(
     source,
   }))
 }
+
+/**
+ * Lo último que se ha comprado, para ofrecerlo antes de escribir nada.
+ * Mismo formato que `suggestProducts` (con `source: 'memory'`), sin los nombres de `exclude`.
+ */
+export function recentProducts(memory = {}, { exclude = [], limit = 6 } = {}) {
+  const excluded = new Set(exclude.map(normalizeName))
+  return Object.keys(memory)
+    .filter((key) => key && !excluded.has(key))
+    .map((key) => ({ ...memory[key], key }))
+    .sort(compareLastUsedDesc)
+    .slice(0, limit)
+    .map(({ name, categoryId, unit }) => ({ name, categoryId, unit, source: 'memory' }))
+}
