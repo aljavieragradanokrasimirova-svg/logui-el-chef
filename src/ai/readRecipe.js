@@ -67,7 +67,12 @@ export async function readRecipeFromImage({
       text = await attempt(call, { apiKey: apiKey.trim(), model: models[i], image }, signal, timeoutMs)
       break
     } catch (error) {
-      if (error?.code !== 'server' || signal?.aborted || i === models.length - 1) throw error
+      if (error?.code !== 'server' || signal?.aborted) throw error
+      if (i === models.length - 1) {
+        // Se agotaron todos: se dice cuáles se probaron para poder diagnosticarlo.
+        error.message += ` [probado: ${[...new Set(models)].join(', ')}]`
+        throw error
+      }
       await sleep(retryDelayMs)
     }
   }

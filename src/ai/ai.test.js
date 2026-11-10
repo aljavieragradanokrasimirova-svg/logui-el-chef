@@ -225,6 +225,13 @@ describe('tiempo máximo y reintento', () => {
     expect(call.mock.calls.map(([args]) => args.model)).toEqual(['a', 'b'])
   })
 
+  it('si fallan todos, el error dice cuáles se probaron', async () => {
+    const call = vi.fn().mockRejectedValue(new AiError('server', 'HTTP 503'))
+    await expect(
+      readRecipeFromImage({ provider: 'gemini', apiKey: 'k', model: 'a', fallbackModels: ['a', 'b'], image, call, retryDelayMs: 1 }),
+    ).rejects.toThrow(/[probado: a, b]/)
+  })
+
   it('reintenta una vez si el servidor falla', async () => {
     const call = vi.fn().mockRejectedValueOnce(new AiError('server', 'HTTP 503: overloaded')).mockResolvedValueOnce(ok)
     const { draft } = await readRecipeFromImage({ provider: 'gemini', apiKey: 'k', image, call, retryDelayMs: 1, makeId: ids() })
