@@ -10,7 +10,8 @@ export const PROVIDERS = [
     keyPlaceholder: 'AIza…',
     note: 'Tiene nivel gratuito, con límites de uso. En ese nivel Google puede usar lo que envías para mejorar sus productos.',
     models: [
-      { id: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash · recomendado' },
+      { id: 'gemini-3.6-flash', label: 'Gemini 3.6 Flash · estable (recomendado)' },
+      { id: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash · el más nuevo, a veces saturado' },
       { id: 'gemini-3.5-flash-lite', label: 'Gemini 3.5 Flash-Lite · más ligero' },
     ],
   },
