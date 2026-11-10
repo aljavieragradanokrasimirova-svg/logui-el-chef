@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import Modal from '../ui/Modal.jsx'
 import Button from '../ui/Button.jsx'
 import { manualPrompt, parseManualReply } from '../../ai/manual.js'
 import { AiError } from '../../ai/errors.js'
+import { useAppNavigate } from '../../feel/viewTransitions.js'
 
 /**
  * Importar sin claves: el usuario copia las instrucciones, usa su propia app de IA con la foto,
@@ -18,7 +18,7 @@ export default function ManualImportSheet({ open, onClose }) {
 }
 
 function ManualBody({ onClose }) {
-  const navigate = useNavigate()
+  const navigate = useAppNavigate()
   const promptRef = useRef(null)
   const [copied, setCopied] = useState(false)
   const [reply, setReply] = useState('')

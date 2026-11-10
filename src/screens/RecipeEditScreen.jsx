@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import ScreenHeader from '../components/ui/ScreenHeader.jsx'
 import Button from '../components/ui/Button.jsx'
 import Card from '../components/ui/Card.jsx'
@@ -18,6 +18,7 @@ import { CATEGORY_BY_ID, DEFAULT_CATEGORY } from '../data/categories.js'
 import { DEFAULT_UNIT } from '../data/units.js'
 import { formatQuantity } from '../domain/format.js'
 import '../components/recipes/recipe-detail.css'
+import { useAppNavigate } from '../feel/viewTransitions.js'
 
 const ICON_LABELS = { pot: 'Olla', pan: 'Sartén', salad: 'Ensalada', cake: 'Tarta', soup: 'Sopa', pasta: 'Pasta' }
 
@@ -60,7 +61,7 @@ function toRows(recipe) {
 const emptyRow = () => ({ key: rowKey(), name: '', quantity: null, unit: DEFAULT_UNIT, categoryId: DEFAULT_CATEGORY })
 
 function RecipeForm({ recipe, draft, warnings = [] }) {
-  const navigate = useNavigate()
+  const navigate = useAppNavigate()
   const { state, actions } = useStore()
   const editing = Boolean(recipe)
   const source = recipe ?? draft // al crear desde una foto, el borrador hace de receta inicial

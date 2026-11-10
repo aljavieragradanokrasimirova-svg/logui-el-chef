@@ -22,3 +22,58 @@ img, svg { -webkit-user-drag: none; }
 .unit:active, .suggestion:active, .add-to-list__option:active { transform: scale(.95); }
 .settings-switch:active { transform: scale(.98); }
 .card a:active, .hero__back:active { transform: translateY(3px); }
+
+/* ---------- Transiciones entre pantallas (View Transitions) ---------- */
+.hero { view-transition-name: hero; }
+.tabbar { view-transition-name: tabbar; }
+.toast-zone { view-transition-name: toast; }
+.fab { view-transition-name: fab; }
+
+::view-transition-group(*) { animation-duration: 320ms; animation-timing-function: cubic-bezier(.2, .9, .25, 1); }
+::view-transition-old(root),
+::view-transition-new(root) { animation-duration: 280ms; animation-timing-function: cubic-bezier(.2, .9, .25, 1); }
+
+:root[data-vt='forward']::view-transition-old(root) { animation-name: vt-fade-out, vt-to-left; }
+:root[data-vt='forward']::view-transition-new(root) { animation-name: vt-fade-in, vt-from-right; }
+:root[data-vt='back']::view-transition-old(root) { animation-name: vt-fade-out, vt-to-right; }
+:root[data-vt='back']::view-transition-new(root) { animation-name: vt-fade-in, vt-from-left; }
+:root[data-vt='tab-right']::view-transition-old(root) { animation-name: vt-fade-out, vt-to-left-short; }
+:root[data-vt='tab-right']::view-transition-new(root) { animation-name: vt-fade-in, vt-from-right-short; }
+:root[data-vt='tab-left']::view-transition-old(root) { animation-name: vt-fade-out, vt-to-right-short; }
+:root[data-vt='tab-left']::view-transition-new(root) { animation-name: vt-fade-in, vt-from-left-short; }
+
+/* La cabecera cambia de tamaño sin deformar su texto; el botón flotante entra con un salto */
+::view-transition-old(hero), ::view-transition-new(hero) { height: 100%; object-fit: cover; object-position: top; }
+::view-transition-new(fab):only-child { animation: vt-pop 360ms var(--ease-bounce) both; }
+::view-transition-old(fab):only-child { animation: vt-fade-out 150ms both; }
+
+@keyframes vt-fade-in { from { opacity: 0; } }
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-from-right { from { transform: translateX(28%); } }
+@keyframes vt-to-left { to { transform: translateX(-18%); } }
+@keyframes vt-from-left { from { transform: translateX(-28%); } }
+@keyframes vt-to-right { to { transform: translateX(18%); } }
+@keyframes vt-from-right-short { from { transform: translateX(10%); } }
+@keyframes vt-to-left-short { to { transform: translateX(-10%); } }
+@keyframes vt-from-left-short { from { transform: translateX(-10%); } }
+@keyframes vt-to-right-short { to { transform: translateX(10%); } }
+@keyframes vt-pop { from { transform: scale(.4) translateY(30px); opacity: 0; } }
+
+/* ---------- Entrada escalonada de tarjetas y pasillos ---------- */
+.screen > :is(.list-card, .aisle, .recipe-card, .recipes-grid, .continue, .card) {
+  animation: rise-in calc(var(--dur-med) * 1.4) cubic-bezier(.2, .9, .3, 1.15) backwards;
+}
+.recipes-list > * { animation: rise-in calc(var(--dur-med) * 1.4) cubic-bezier(.2, .9, .3, 1.15) backwards; }
+.recipes-list > :nth-child(2) { animation-delay: 40ms; }
+.recipes-list > :nth-child(3) { animation-delay: 80ms; }
+.recipes-list > :nth-child(4) { animation-delay: 120ms; }
+.recipes-list > :nth-child(n+5) { animation-delay: 160ms; }
+.screen > :nth-child(2) { animation-delay: 30ms; }
+.screen > :nth-child(3) { animation-delay: 70ms; }
+.screen > :nth-child(4) { animation-delay: 110ms; }
+.screen > :nth-child(5) { animation-delay: 150ms; }
+.screen > :nth-child(6) { animation-delay: 190ms; }
+.screen > :nth-child(7) { animation-delay: 230ms; }
+.screen > :nth-child(n+8) { animation-delay: 260ms; }
+@keyframes rise-in { from { opacity: 0; transform: translateY(14px) scale(.98); } }
+.reduce-motion .screen > *, .reduce-motion .recipes-list > * { animation: none !important; }

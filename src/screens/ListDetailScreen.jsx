@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import ScreenHeader from '../components/ui/ScreenHeader.jsx'
 import ProgressBar from '../components/ui/ProgressBar.jsx'
 import Button from '../components/ui/Button.jsx'
@@ -21,10 +21,11 @@ import { useFlip } from '../components/motion/useFlip.js'
 import { haptic } from '../feel/haptics.js'
 import { pickLine } from '../data/loguiLines.js'
 import '../components/lists/lists.css'
+import { useAppNavigate } from '../feel/viewTransitions.js'
 
 export default function ListDetailScreen() {
   const { listId } = useParams()
-  const navigate = useNavigate()
+  const navigate = useAppNavigate()
   const { state, actions } = useStore()
   const list = state.lists.find((l) => l.id === listId)
   const [editingId, setEditingId] = useState(null)

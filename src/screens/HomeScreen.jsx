@@ -73,7 +73,7 @@ export default function HomeScreen() {
 function ContinueCard({ list }) {
   const { checked, total } = listProgress(list)
   return (
-    <Link to={`/listas/${list.id}`} className="continue">
+    <Link to={`/listas/${list.id}`} className="continue" data-vt-expand="">
       <Icon icon="fridge" size={48} />
       <span className="continue__text">
         <span className="continue__kicker">Seguir comprando</span>

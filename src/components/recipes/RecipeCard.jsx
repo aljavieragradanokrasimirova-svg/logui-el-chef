@@ -12,7 +12,7 @@ export default function RecipeCard({ recipe }) {
   const color = RECIPE_ICON_COLORS[recipe.iconId] ?? DEFAULT_RECIPE_COLOR
   const n = recipe.ingredients.length
   return (
-    <Link to={'/recetas/' + recipe.id} className="recipe-card" style={{ '--recipe-color': color }}>
+    <Link to={'/recetas/' + recipe.id} className="recipe-card" data-vt-expand="" style={{ '--recipe-color': color }}>
       <span className="recipe-card__art">
         <Icon icon={recipe.iconId} size={64} />
         <span className="recipe-card__servings" aria-label={`${recipe.servings} raciones`}>

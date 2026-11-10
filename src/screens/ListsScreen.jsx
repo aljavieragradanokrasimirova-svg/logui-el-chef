@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import ScreenHeader from '../components/ui/ScreenHeader.jsx'
 import Button from '../components/ui/Button.jsx'
 import UiIcon from '../components/icons/UiIcon.jsx'
@@ -8,9 +8,10 @@ import RenameModal from '../components/lists/RenameModal.jsx'
 import ListCard from '../components/lists/ListCard.jsx'
 import { useStore } from '../store/StoreProvider.jsx'
 import '../components/lists/lists.css'
+import { useAppNavigate } from '../feel/viewTransitions.js'
 
 export default function ListsScreen() {
-  const navigate = useNavigate()
+  const navigate = useAppNavigate()
   const { state, actions } = useStore()
   const [creating, setCreating] = useState(false)
 

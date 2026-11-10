@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom'
 import ScreenHeader from '../components/ui/ScreenHeader.jsx'
 import Button from '../components/ui/Button.jsx'
 import { useToast } from '../components/ui/Toast.jsx'
@@ -9,9 +8,10 @@ import { useStore } from '../store/StoreProvider.jsx'
 import { haptic } from '../feel/haptics.js'
 import { pickLine } from '../data/loguiLines.js'
 import '../components/lists/lists.css'
+import { useAppNavigate } from '../feel/viewTransitions.js'
 
 export default function HistoryScreen() {
-  const navigate = useNavigate()
+  const navigate = useAppNavigate()
   const { state, actions } = useStore()
   const toast = useToast()
 
