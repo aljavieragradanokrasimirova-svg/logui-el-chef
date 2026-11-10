@@ -8,6 +8,9 @@
   --c-cream-deep: #F6E7C8;
   --c-cocoa: #4A2E22;
   --c-cocoa-soft: #7A5A48;
+  --c-ink: #4A2E22; /* texto (en claro, igual que las líneas) */
+  --c-ink-on-light: #4A2E22; /* texto sobre colores vivos (mantequilla, menta, pasillos) */
+  --c-on-accent: #FFFFFF; /* texto sobre tomate */
   --c-mint: #6CC4A1;
   --c-white: #FFFFFF;
   --c-caramel: #D9893F;

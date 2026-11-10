@@ -1,0 +1,87 @@
+/*
+ * Modo oscuro: «la cocina de noche». Superficies marrón tostado, texto crema y líneas casi negras.
+ * Se activa con el sistema (Ajustes → Tema: Automático) o a mano (data-theme="dark" en <html>).
+ * Los dibujos (Logui, iconos, la cocina) conservan sus colores de día: ver `.art` más abajo.
+ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --c-cream: #1F1510;
+    --c-cream-deep: #3A2B21;
+    --c-white: #2C1F18;
+    --c-cocoa: #0D0805;
+    --c-cocoa-soft: #C4AC97;
+    --c-ink: #F7EBD3;
+    --c-ink-on-light: #3A2418;
+    --c-butter-soft: #4B3D1E;
+    --c-tomato: #D9482F;
+    --c-tomato-dark: #9E3221;
+    --c-overlay: rgba(0, 0, 0, .62);
+    --c-wash: #24443A;
+    --c-toast-bg: #F7EBD3;
+    --c-toast-ink: #2A1A12;
+    --line: 3px solid #5A4233;
+  }
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --c-cream: #1F1510;
+  --c-cream-deep: #3A2B21;
+  --c-white: #2C1F18;
+  --c-cocoa: #0D0805;
+  --c-cocoa-soft: #C4AC97;
+  --c-ink: #F7EBD3;
+  --c-ink-on-light: #3A2418;
+  --c-butter-soft: #4B3D1E;
+  --c-tomato: #D9482F;
+  --c-tomato-dark: #9E3221;
+  --c-overlay: rgba(0, 0, 0, .62);
+  --c-wash: #24443A;
+  --c-toast-bg: #F7EBD3;
+  --c-toast-ink: #2A1A12;
+  --line: 3px solid #5A4233; /* bordes visibles sobre marrón; las sombras siguen casi negras */
+}
+
+/* Dibujos: siempre con la paleta de día (Logui no se vuelve negro de noche) */
+.art,
+.logui,
+.kitchen,
+.confetti {
+  --c-cream: #FFF8E7;
+  --c-cream-deep: #F6E7C8;
+  --c-white: #FFFFFF;
+  --c-cocoa: #4A2E22;
+  --c-cocoa-soft: #7A5A48;
+  --c-butter-soft: #FCEFB4;
+  --c-tomato: #E8513A;
+  --c-tomato-dark: #B83A27;
+}
+
+/*
+ * Lo que tiene fondo de color vivo lleva texto oscuro en los dos temas.
+ * (En claro --c-ink-on-light es el mismo cacao de siempre, así que no cambia nada.)
+ */
+:root .btn--accent,
+:root .chip--active,
+:root .unit--on,
+:root .fab,
+:root .hero-badge--butter,
+:root .hero-badge--mint,
+:root .aisle__title,
+:root .tile--on,
+:root .recipes-filter--active,
+:root .recipe-form__icon--on,
+:root .toast__action,
+:root .add-sheet__count,
+:root .item__under {
+  color: var(--c-ink-on-light);
+}
+
+/* El contador del pasillo es una chapa de superficie dentro de la franja de color */
+:root .aisle__count { color: var(--c-ink); }
+
+/* Mantel de cuadros más tenue de noche */
+:root[data-theme='dark'] body { background-image: linear-gradient(90deg, rgba(232, 81, 58, .05) 50%, transparent 50%), linear-gradient(rgba(232, 81, 58, .05) 50%, transparent 50%); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) body { background-image: linear-gradient(90deg, rgba(232, 81, 58, .05) 50%, transparent 50%), linear-gradient(rgba(232, 81, 58, .05) 50%, transparent 50%); }
+}

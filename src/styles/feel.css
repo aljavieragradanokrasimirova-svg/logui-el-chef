@@ -121,7 +121,7 @@ img, svg { -webkit-user-drag: none; }
   border: var(--line);
   border-radius: 16px 16px 4px 16px;
   background: var(--c-white);
-  color: var(--c-cocoa);
+  color: var(--c-ink);
   font-size: var(--fs-s);
   font-weight: 800;
   line-height: 1.25;

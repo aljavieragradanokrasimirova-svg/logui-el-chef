@@ -100,7 +100,7 @@
   border: var(--line);
   border-radius: var(--r-pill);
   background: var(--c-white);
-  color: var(--c-white);
+  color: var(--c-on-accent);
   transition: background var(--dur-fast) ease, transform var(--dur-med) var(--ease-bounce);
 }
 .item__name { flex: 1; min-width: 0; overflow-wrap: break-word; font-weight: 700; }
