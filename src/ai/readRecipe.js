@@ -6,7 +6,7 @@ import { AiError } from './errors.js'
 
 const CALLS = { anthropic: callAnthropic, openai: callOpenAI, gemini: callGemini }
 
-const TIMEOUT_MS = 90_000
+const TIMEOUT_MS = 45_000
 const RETRY_DELAY_MS = 2_000
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -57,7 +57,7 @@ export async function readRecipeFromImage({
 }) {
   if (!apiKey?.trim()) throw new AiError('no-key')
   if (!call) throw new AiError('bad-request', `proveedor desconocido: ${provider}`)
-  // Si el servidor falla (p. ej. «modelo saturado»), se prueba con los otros modelos del proveedor, con una pausa.
+  // Si el servidor falla o un modelo se cuelga, se prueba con los otros modelos del proveedor, con una pausa.
   // Con un solo modelo disponible se reintenta ese una vez.
   const models = [model, ...fallbackModels.filter((m) => m !== model)]
   if (models.length === 1) models.push(model)
@@ -67,7 +67,7 @@ export async function readRecipeFromImage({
       text = await attempt(call, { apiKey: apiKey.trim(), model: models[i], image }, signal, timeoutMs)
       break
     } catch (error) {
-      if (error?.code !== 'server' || signal?.aborted) throw error
+      if (!['server', 'timeout'].includes(error?.code) || signal?.aborted) throw error
       if (i === models.length - 1) {
         // Se agotaron todos: se dice cuáles se probaron para poder diagnosticarlo.
         error.message += ` [probado: ${[...new Set(models)].join(', ')}]`
