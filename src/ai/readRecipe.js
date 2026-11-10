@@ -51,20 +51,25 @@ export async function readRecipeFromImage({
   signal,
   call = CALLS[provider],
   makeId = () => crypto.randomUUID(),
+  fallbackModels = [],
   timeoutMs = TIMEOUT_MS,
   retryDelayMs = RETRY_DELAY_MS,
 }) {
   if (!apiKey?.trim()) throw new AiError('no-key')
   if (!call) throw new AiError('bad-request', `proveedor desconocido: ${provider}`)
-  const args = { apiKey: apiKey.trim(), model, image }
+  // Si el servidor falla (p. ej. «modelo saturado»), se prueba con los otros modelos del proveedor, con una pausa.
+  // Con un solo modelo disponible se reintenta ese una vez.
+  const models = [model, ...fallbackModels.filter((m) => m !== model)]
+  if (models.length === 1) models.push(model)
   let text
-  try {
-    text = await attempt(call, args, signal, timeoutMs)
-  } catch (error) {
-    // Los fallos del servidor (p. ej. «modelo saturado») suelen pasar solos: un reintento tras una pausa.
-    if (error?.code !== 'server' || signal?.aborted) throw error
-    await sleep(retryDelayMs)
-    text = await attempt(call, args, signal, timeoutMs)
+  for (let i = 0; i < models.length; i++) {
+    try {
+      text = await attempt(call, { apiKey: apiKey.trim(), model: models[i], image }, signal, timeoutMs)
+      break
+    } catch (error) {
+      if (error?.code !== 'server' || signal?.aborted || i === models.length - 1) throw error
+      await sleep(retryDelayMs)
+    }
   }
   let extracted
   try {

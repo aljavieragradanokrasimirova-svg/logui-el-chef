@@ -5,6 +5,7 @@ import Modal, { ModalActions } from '../ui/Modal.jsx'
 import UiIcon from '../icons/UiIcon.jsx'
 import Logui from '../../mascot/Logui.jsx'
 import { loadAiConfig, activeSelection } from '../../ai/config.js'
+import { PROVIDER_BY_ID } from '../../ai/providers.js'
 import { prepareImage } from '../../ai/image.js'
 import { readRecipeFromImage } from '../../ai/readRecipe.js'
 import { AiError } from '../../ai/errors.js'
@@ -45,7 +46,8 @@ export default function PhotoImport({ round = false }) {
     try {
       const image = await prepareImage(file)
       const selection = activeSelection(loadAiConfig())
-      const { draft, warnings } = await readRecipeFromImage({ ...selection, image, signal: controller.signal })
+      const fallbackModels = PROVIDER_BY_ID[selection.provider].models.map((m) => m.id)
+      const { draft, warnings } = await readRecipeFromImage({ ...selection, fallbackModels, image, signal: controller.signal })
       setStatus('idle')
       navigate('/recetas/nueva', { state: { draft, warnings } })
     } catch (error) {
