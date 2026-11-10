@@ -3,6 +3,8 @@ import Card from '../ui/Card.jsx'
 import Button from '../ui/Button.jsx'
 import { PROVIDERS, PROVIDER_BY_ID } from '../../ai/providers.js'
 import { loadAiConfig, saveAiConfig } from '../../ai/config.js'
+import { testConnection } from '../../ai/testConnection.js'
+import { makeTestImage } from '../../ai/image.js'
 import '../pickers/pickers.css'
 import './settings.css'
 
@@ -16,6 +18,7 @@ export default function AiSettingsCard() {
   const [config, setConfig] = useState(() => loadAiConfig())
   const [keyText, setKeyText] = useState('')
   const [saved, setSaved] = useState('')
+  const [test, setTest] = useState(null) // null | { running } | { ok, ms, message }
   const providerName = useId()
   const modelName = useId()
 
@@ -34,6 +37,17 @@ export default function AiSettingsCard() {
     update({ ...config, keys: { ...config.keys, [provider.id]: key } })
     setKeyText('')
     setSaved('Clave guardada.')
+  }
+
+  async function runTest() {
+    setTest({ running: true })
+    const result = await testConnection({
+      provider: provider.id,
+      model: config.models[provider.id],
+      apiKey: savedKey,
+      image: makeTestImage(),
+    })
+    setTest(result)
   }
 
   function removeKey() {
@@ -90,7 +104,17 @@ export default function AiSettingsCard() {
           <p className="settings-key__saved">
             Clave guardada: <code>{mask(savedKey)}</code>
           </p>
-          <Button size="small" onClick={removeKey}>Quitar clave</Button>
+          <div className="settings-key__buttons">
+            <Button size="small" variant="primary" onClick={runTest} disabled={test?.running}>
+              {test?.running ? 'Probando…' : 'Probar conexión'}
+            </Button>
+            <Button size="small" onClick={removeKey}>Quitar clave</Button>
+          </div>
+          {test && !test.running && (
+            <p className={test.ok ? 'settings-status' : 'settings-error'} role="status">
+              {test.ok ? `✓ Funciona (${(test.ms / 1000).toFixed(1)} s con ${config.models[provider.id]})` : `✗ ${test.message}`}
+            </p>
+          )}
         </div>
       ) : (
         <form className="settings-key" onSubmit={saveKey}>

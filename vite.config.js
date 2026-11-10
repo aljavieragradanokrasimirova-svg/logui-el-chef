@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process'
 import { readFileSync, readdirSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { defineConfig } from 'vite'
@@ -40,7 +41,18 @@ function serviceWorker() {
   }
 }
 
+/** «a1b2c3d · 10 nov»: para saber qué versión tiene instalada cada dispositivo. */
+function appVersion() {
+  const date = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).replace('.', '')
+  try {
+    return `${execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim()} · ${date}`
+  } catch {
+    return date
+  }
+}
+
 export default defineConfig({
+  define: { __APP_VERSION__: JSON.stringify(appVersion()) },
   // Rutas relativas: la app funciona servida desde cualquier carpeta (p. ej. GitHub Pages).
   base: './',
   plugins: [react(), serviceWorker()],

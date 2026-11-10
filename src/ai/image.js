@@ -30,3 +30,17 @@ export async function prepareImage(file) {
   if (!blob) throw new Error('No se pudo preparar la imagen')
   return { base64: await blobToBase64(blob), mediaType: 'image/jpeg' }
 }
+
+/** Imagen de prueba (64×64, blanca con una letra) para «Probar conexión»: no hace falta ninguna foto. */
+export function makeTestImage() {
+  const canvas = document.createElement('canvas')
+  canvas.width = 64
+  canvas.height = 64
+  const ctx = canvas.getContext('2d')
+  ctx.fillStyle = '#fff'
+  ctx.fillRect(0, 0, 64, 64)
+  ctx.fillStyle = '#000'
+  ctx.font = '40px sans-serif'
+  ctx.fillText('A', 18, 46)
+  return { base64: canvas.toDataURL('image/jpeg', 0.8).split(',')[1], mediaType: 'image/jpeg' }
+}
