@@ -210,3 +210,33 @@ describe('config de la IA', () => {
     expect(loadAiConfig(null)).toEqual(defaultAiConfig())
   })
 })
+
+describe('tiempo máximo y reintento', () => {
+  const ok = JSON.stringify(extracted())
+
+  it('corta con un mensaje claro si la IA no contesta', async () => {
+    const hang = ({ signal }) => new Promise((_, reject) => signal.addEventListener('abort', () => reject(Object.assign(new Error('aborted'), { name: 'AbortError' }))))
+    await expect(readRecipeFromImage({ provider: 'gemini', apiKey: 'k', image, call: hang, timeoutMs: 30 })).rejects.toMatchObject({ code: 'timeout' })
+  })
+
+  it('reintenta una vez si el servidor falla', async () => {
+    const call = vi.fn().mockRejectedValueOnce(new AiError('server', 'HTTP 503: overloaded')).mockResolvedValueOnce(ok)
+    const { draft } = await readRecipeFromImage({ provider: 'gemini', apiKey: 'k', image, call, retryDelayMs: 1, makeId: ids() })
+    expect(draft.name).toBe('Tortilla de patatas')
+    expect(call).toHaveBeenCalledTimes(2)
+  })
+
+  it('no reintenta más de una vez ni los errores del usuario', async () => {
+    const server = vi.fn().mockRejectedValue(new AiError('server', 'HTTP 500'))
+    await expect(readRecipeFromImage({ provider: 'gemini', apiKey: 'k', image, call: server, retryDelayMs: 1 })).rejects.toMatchObject({ code: 'server' })
+    expect(server).toHaveBeenCalledTimes(2)
+    const auth = vi.fn().mockRejectedValue(new AiError('auth'))
+    await expect(readRecipeFromImage({ provider: 'gemini', apiKey: 'k', image, call: auth, retryDelayMs: 1 })).rejects.toMatchObject({ code: 'auth' })
+    expect(auth).toHaveBeenCalledTimes(1)
+  })
+
+  it('los errores enseñan el motivo del proveedor', () => {
+    expect(fromHttp(503, 'The model is overloaded. Please try again later.').message).toMatch(/HTTP 503: The model is overloaded/)
+    expect(fromHttp(400, 'Unknown name "thinkingConfig"').message).toMatch(/HTTP 400: Unknown name/)
+  })
+})
