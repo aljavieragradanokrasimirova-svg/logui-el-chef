@@ -2,7 +2,7 @@
 const MESSAGES = {
   'no-key': 'Falta tu clave de API. Pégala en Ajustes.',
   auth: 'La clave no es válida o no tiene permiso. Revísala en Ajustes.',
-  quota: 'Tu cuenta no tiene saldo o ha llegado a su límite de gasto. Revisa la facturación del proveedor.',
+  quota: 'Has llegado al límite de uso de tu cuenta, o no queda saldo. Espera un poco o revisa tu cuenta en el proveedor.',
   rate: 'Demasiadas peticiones seguidas. Espera un minuto y vuelve a intentarlo.',
   network: 'No hay conexión con el servicio. Comprueba internet e inténtalo de nuevo.',
   server: 'El servicio de IA está fallando ahora mismo. Inténtalo en unos minutos.',
@@ -23,12 +23,13 @@ export class AiError extends Error {
   }
 }
 
-const QUOTA = /credit|billing|quota|insufficient|balance|spend limit/i
+const QUOTA = /credit|billing|quota|insufficient|balance|spend limit|resource_exhausted/i
+const BAD_KEY = /api key not valid|invalid api key|incorrect api key|api_key_invalid/i
 
 /** Convierte un error HTTP de cualquiera de los proveedores en un AiError. */
 export function fromHttp(status, message = '', code = '') {
   const text = `${code} ${message}`
-  if (status === 401 || status === 403) return new AiError('auth')
+  if (status === 401 || status === 403 || BAD_KEY.test(text)) return new AiError('auth')
   if (status === 402 || QUOTA.test(text)) return new AiError('quota')
   if (status === 429) return new AiError('rate')
   if (status === 413) return new AiError('too-big')

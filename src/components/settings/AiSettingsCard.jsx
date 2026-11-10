@@ -46,7 +46,7 @@ export default function AiSettingsCard() {
       <h2>Recetas desde una foto</h2>
       <p>
         Haz una foto a una receta y la IA la copia con sus ingredientes y pasos. Necesitas una <strong>clave de API</strong>{' '}
-        de tu cuenta (no vale la suscripción de chat): cada foto cuesta unos céntimos, orientativo.
+        de tu cuenta (no vale la suscripción de chat). Sin clave también puedes usar tu propia app de IA copiando y pegando.
       </p>
 
       <fieldset className="picker">
@@ -113,6 +113,7 @@ export default function AiSettingsCard() {
         </form>
       )}
 
+      <p className="settings-install-hint">{provider.note}</p>
       <p className="settings-install-hint">
         La clave se queda solo en este dispositivo y no entra en las copias de seguridad. Cada foto se envía al proveedor
         elegido para leerla.

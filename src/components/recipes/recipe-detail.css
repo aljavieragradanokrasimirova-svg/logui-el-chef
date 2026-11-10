@@ -156,3 +156,13 @@
 .recipe-import { display: grid; gap: var(--sp-2); }
 .recipe-import p { margin: 0; }
 .recipe-import ul { margin: 0; padding-left: var(--sp-5); display: grid; gap: var(--sp-1); font-weight: 700; }
+
+/* Importar pegando la respuesta de tu propia app de IA */
+.manual { display: grid; gap: var(--sp-4); }
+.manual__steps { margin: 0; padding-left: var(--sp-5); display: grid; gap: var(--sp-4); }
+.manual__steps li { display: grid; gap: var(--sp-2); justify-items: start; }
+.manual__steps li::marker { font-family: var(--font-title); color: var(--c-tomato); }
+.manual__prompt, .manual__reply { width: 100%; font-size: var(--fs-s); }
+.manual__prompt { border: var(--line); border-radius: var(--r-chip); background: var(--c-cream-deep); padding: var(--sp-2); resize: none; }
+.manual__reply { min-height: 120px; padding: var(--sp-3); line-height: 1.4; }
+.manual__error { margin: 0; color: var(--c-tomato-dark); font-weight: 800; }
