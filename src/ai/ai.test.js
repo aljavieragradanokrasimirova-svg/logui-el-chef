@@ -232,6 +232,17 @@ describe('tiempo máximo y reintento', () => {
     ).rejects.toThrow(/[probado: a, b]/)
   })
 
+  it('si un modelo se cuelga prueba con el siguiente', async () => {
+    const call = vi.fn(({ model, signal }) =>
+      model === 'colgado'
+        ? new Promise((_, reject) => signal.addEventListener('abort', () => reject(Object.assign(new Error('aborted'), { name: 'AbortError' }))))
+        : Promise.resolve(ok),
+    )
+    const { draft } = await readRecipeFromImage({ provider: 'gemini', apiKey: 'k', model: 'colgado', fallbackModels: ['colgado', 'bueno'], image, call, timeoutMs: 30, retryDelayMs: 1, makeId: ids() })
+    expect(draft.name).toBe('Tortilla de patatas')
+    expect(call.mock.calls.map(([args]) => args.model)).toEqual(['colgado', 'bueno'])
+  })
+
   it('reintenta una vez si el servidor falla', async () => {
     const call = vi.fn().mockRejectedValueOnce(new AiError('server', 'HTTP 503: overloaded')).mockResolvedValueOnce(ok)
     const { draft } = await readRecipeFromImage({ provider: 'gemini', apiKey: 'k', image, call, retryDelayMs: 1, makeId: ids() })
