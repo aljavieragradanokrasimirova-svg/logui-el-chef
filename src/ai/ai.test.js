@@ -5,6 +5,7 @@ import { RECIPE_SCHEMA } from './schema.js'
 import { callAnthropic } from './anthropic.js'
 import { callOpenAI } from './openai.js'
 import { readRecipeFromImage } from './readRecipe.js'
+import { testConnection } from './testConnection.js'
 import { AI_STORAGE_KEY, defaultAiConfig, loadAiConfig, saveAiConfig, activeSelection } from './config.js'
 
 const image = { base64: 'AAAA', mediaType: 'image/jpeg' }
@@ -262,5 +263,22 @@ describe('tiempo máximo y reintento', () => {
   it('los errores enseñan el motivo del proveedor', () => {
     expect(fromHttp(503, 'The model is overloaded. Please try again later.').message).toMatch(/HTTP 503: The model is overloaded/)
     expect(fromHttp(400, 'Unknown name "thinkingConfig"').message).toMatch(/HTTP 400: Unknown name/)
+  })
+})
+
+describe('testConnection', () => {
+  it('dice si funciona y cuánto tarda', async () => {
+    const result = await testConnection({ provider: 'gemini', model: 'm', apiKey: 'k', image, call: async () => '{}' })
+    expect(result.ok).toBe(true)
+    expect(result.ms).toBeGreaterThanOrEqual(0)
+  })
+
+  it('devuelve el motivo si falla, el tiempo agotado y la falta de clave', async () => {
+    const fail = await testConnection({ provider: 'gemini', model: 'm', apiKey: 'k', image, call: async () => { throw new AiError('server', 'HTTP 503') } })
+    expect(fail).toMatchObject({ ok: false })
+    expect(fail.message).toMatch(/HTTP 503/)
+    const hang = ({ signal }) => new Promise((_, reject) => signal.addEventListener('abort', () => reject(new Error('abort'))))
+    expect((await testConnection({ provider: 'gemini', model: 'm', apiKey: 'k', image, call: hang, timeoutMs: 20 })).message).toMatch(/tarda demasiado/)
+    expect((await testConnection({ provider: 'gemini', model: 'm', apiKey: '', image })).ok).toBe(false)
   })
 })

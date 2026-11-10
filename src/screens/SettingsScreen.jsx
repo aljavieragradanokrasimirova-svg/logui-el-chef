@@ -153,6 +153,8 @@ export default function SettingsScreen() {
         </Button>
       </Card>
 
+      <p className="settings-version">Versión {__APP_VERSION__}</p>
+
       {status && (
         <p className="settings-status" role="status">
           {status}
