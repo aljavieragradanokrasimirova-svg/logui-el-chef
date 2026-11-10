@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import ScreenHeader from '../components/ui/ScreenHeader.jsx'
 import Button from '../components/ui/Button.jsx'
+import Card from '../components/ui/Card.jsx'
 import Modal, { ModalActions } from '../components/ui/Modal.jsx'
 import UiIcon from '../components/icons/UiIcon.jsx'
 import CategoryIcon, { Icon } from '../components/icons/CategoryIcon.jsx'
@@ -21,7 +22,9 @@ const ICON_LABELS = { pot: 'Olla', pan: 'Sartén', salad: 'Ensalada', cake: 'Tar
 export default function RecipeEditScreen() {
   const { recipeId } = useParams()
   const { state } = useStore()
+  const location = useLocation()
   const recipe = recipeId ? state.recipes.find((r) => r.id === recipeId) : null
+  const imported = recipeId ? null : location.state
 
   if (recipeId && !recipe) {
     return (
@@ -34,7 +37,7 @@ export default function RecipeEditScreen() {
       </main>
     )
   }
-  return <RecipeForm key={recipeId ?? 'nueva'} recipe={recipe} />
+  return <RecipeForm key={recipeId ?? (imported?.draft ? 'foto' : 'nueva')} recipe={recipe} draft={imported?.draft} warnings={imported?.warnings} />
 }
 
 let rowCounter = 0
@@ -53,16 +56,17 @@ function toRows(recipe) {
 
 const emptyRow = () => ({ key: rowKey(), name: '', quantity: null, unit: DEFAULT_UNIT, categoryId: DEFAULT_CATEGORY })
 
-function RecipeForm({ recipe }) {
+function RecipeForm({ recipe, draft, warnings = [] }) {
   const navigate = useNavigate()
   const { state, actions } = useStore()
   const editing = Boolean(recipe)
-  const [name, setName] = useState(recipe?.name ?? '')
-  const [iconId, setIconId] = useState(recipe?.iconId ?? DEFAULT_RECIPE_ICON)
-  const [tags, setTags] = useState(recipe?.tags.join(', ') ?? '')
-  const [servings, setServings] = useState(String(recipe?.servings ?? 2))
-  const [rows, setRows] = useState(() => (editing ? toRows(recipe) : [emptyRow()]))
-  const [steps, setSteps] = useState(() => (recipe?.steps.length ? recipe.steps : ['']))
+  const source = recipe ?? draft // al crear desde una foto, el borrador hace de receta inicial
+  const [name, setName] = useState(source?.name ?? '')
+  const [iconId, setIconId] = useState(source?.iconId ?? DEFAULT_RECIPE_ICON)
+  const [tags, setTags] = useState(source?.tags.join(', ') ?? '')
+  const [servings, setServings] = useState(String(source?.servings ?? 2))
+  const [rows, setRows] = useState(() => (source ? toRows(source) : [emptyRow()]))
+  const [steps, setSteps] = useState(() => (source?.steps.length ? source.steps : ['']))
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [detailsKey, setDetailsKey] = useState(null) // fila cuyo pasillo/cantidad/unidad se está editando
   const detailsRow = rows.find((r) => r.key === detailsKey) ?? null
@@ -106,6 +110,18 @@ function RecipeForm({ recipe }) {
   return (
     <main className="screen">
       <ScreenHeader title={editing ? 'Editar receta' : 'Nueva receta'} backTo={editing ? `/recetas/${recipe.id}` : '/recetas'} />
+
+      {draft && (
+        <Card tone="butter" className="recipe-import">
+          <h2>Leída de la foto</h2>
+          <p>Comprueba que todo está bien antes de guardar: la IA puede equivocarse con letra pequeña o borrosa.</p>
+          {warnings.length > 0 && (
+            <ul>
+              {warnings.map((w, i) => <li key={i}>{w}</li>)}
+            </ul>
+          )}
+        </Card>
+      )}
 
       <form className="recipe-form" onSubmit={submit}>
         <label className="label">

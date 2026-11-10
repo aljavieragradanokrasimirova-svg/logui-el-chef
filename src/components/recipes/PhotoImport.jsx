@@ -1,0 +1,110 @@
+import { useRef, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import Button from '../ui/Button.jsx'
+import Modal, { ModalActions } from '../ui/Modal.jsx'
+import UiIcon from '../icons/UiIcon.jsx'
+import Logui from '../../mascot/Logui.jsx'
+import { loadAiConfig, activeSelection } from '../../ai/config.js'
+import { prepareImage } from '../../ai/image.js'
+import { readRecipeFromImage } from '../../ai/readRecipe.js'
+import { AiError } from '../../ai/errors.js'
+
+/**
+ * Botón «Desde una foto»: elige o hace una foto, la IA la lee y se abre el formulario de receta ya relleno.
+ * `round` = botón redondo solo con icono (cabecera); si no, botón normal con texto.
+ */
+export default function PhotoImport({ round = false }) {
+  const navigate = useNavigate()
+  const inputRef = useRef(null)
+  const abortRef = useRef(null)
+  const [status, setStatus] = useState('idle') // idle | nokey | reading | error
+  const [message, setMessage] = useState('')
+
+  function start() {
+    const { apiKey } = activeSelection(loadAiConfig())
+    if (!apiKey) {
+      setStatus('nokey')
+      return
+    }
+    inputRef.current?.click()
+  }
+
+  async function onFile(e) {
+    const file = e.target.files?.[0]
+    e.target.value = '' // permite elegir la misma foto otra vez
+    if (!file) return
+    if (navigator.onLine === false) {
+      setMessage(new AiError('network').message)
+      setStatus('error')
+      return
+    }
+    const controller = new AbortController()
+    abortRef.current = controller
+    setStatus('reading')
+    try {
+      const image = await prepareImage(file)
+      const selection = activeSelection(loadAiConfig())
+      const { draft, warnings } = await readRecipeFromImage({ ...selection, image, signal: controller.signal })
+      setStatus('idle')
+      navigate('/recetas/nueva', { state: { draft, warnings } })
+    } catch (error) {
+      if (controller.signal.aborted || error?.name === 'AbortError') {
+        setStatus('idle')
+        return
+      }
+      setMessage(error instanceof AiError ? error.message : 'No se pudo abrir la foto. Prueba con otra.')
+      setStatus('error')
+    } finally {
+      abortRef.current = null
+    }
+  }
+
+  const cancel = () => {
+    abortRef.current?.abort()
+    setStatus('idle')
+  }
+  const close = () => setStatus('idle')
+
+  return (
+    <>
+      {round ? (
+        <Button round size="small" aria-label="Crear receta desde una foto" onClick={start}>
+          <UiIcon name="camera" />
+        </Button>
+      ) : (
+        <Button onClick={start}>
+          <UiIcon name="camera" /> Desde una foto
+        </Button>
+      )}
+      <input ref={inputRef} type="file" accept="image/*" className="sr-only" tabIndex={-1} aria-hidden="true" onChange={onFile} />
+
+      <Modal open={status === 'nokey'} onClose={close} title="Falta tu clave de IA">
+        <p style={{ margin: 0 }}>
+          Para leer recetas desde una foto necesitas pegar una clave de API de Claude o de GPT. Se hace una sola vez en Ajustes.
+        </p>
+        <ModalActions>
+          <Button size="small" onClick={close}>Ahora no</Button>
+          <Link to="/ajustes" className="btn btn--small btn--primary">Ir a Ajustes</Link>
+        </ModalActions>
+      </Modal>
+
+      <Modal open={status === 'reading'} onClose={cancel} title="Leyendo la receta…">
+        <div style={{ display: 'grid', justifyItems: 'center', gap: 'var(--sp-3)', textAlign: 'center' }}>
+          <Logui mood="think" size={96} />
+          <p style={{ margin: 0 }}>Logui está copiando los ingredientes y los pasos. Tarda unos segundos.</p>
+        </div>
+        <ModalActions>
+          <Button size="small" onClick={cancel}>Cancelar</Button>
+        </ModalActions>
+      </Modal>
+
+      <Modal open={status === 'error'} onClose={close} title="No se pudo leer la receta">
+        <p style={{ margin: 0 }} role="alert">{message}</p>
+        <ModalActions>
+          <Button size="small" onClick={close}>Cerrar</Button>
+          <Button size="small" variant="primary" onClick={() => { close(); start() }}>Probar otra foto</Button>
+        </ModalActions>
+      </Modal>
+    </>
+  )
+}

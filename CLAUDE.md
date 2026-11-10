@@ -12,3 +12,10 @@ Flujo: una rama por tarea (`tarea/NNN-nombre`), OpenCode implementa, Claude revi
 Publicación: cada push a `master` en GitHub (`aljavieragradanokrasimirova-svg/logui-el-chef`) ejecuta los tests y
 despliega en https://aljavieragradanokrasimirova-svg.github.io/logui-el-chef/ (`.github/workflows/deploy.yml`).
 Los commits usan el correo noreply de GitHub (configurado en el `.git/config` del proyecto), no el del instituto.
+
+Recetas desde una foto (`src/ai/`): el usuario pega su propia clave de API (Claude u OpenAI) en Ajustes; se guarda en
+`localStorage` bajo `logui:ai`, separada del estado (`logui:v1`) para que NUNCA entre en las copias de seguridad.
+Las llamadas salen directas del navegador (no hay servidor). El esquema, el prompt y la conversión a receta
+(`schema.js`, `draft.js`) son comunes; cada proveedor solo implementa su llamada (`anthropic.js`, `openai.js`).
+Los modelos disponibles están en `providers.js`. Sin clave real no se puede probar de extremo a extremo: los tests
+usan respuestas simuladas.

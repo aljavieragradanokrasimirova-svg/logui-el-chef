@@ -6,6 +6,7 @@ import Modal, { ModalActions } from '../components/ui/Modal.jsx'
 import { useStore } from '../store/StoreProvider.jsx'
 import { exportBackup, parseBackup } from '../store/storage.js'
 import { useInstallPrompt } from '../pwa/useInstallPrompt.js'
+import AiSettingsCard from '../components/settings/AiSettingsCard.jsx'
 import '../components/settings/settings.css'
 
 const listCount = (n) => `${n} ${n === 1 ? 'lista' : 'listas'}`
@@ -120,6 +121,8 @@ export default function SettingsScreen() {
           </span>
         </button>
       </Card>
+
+      <AiSettingsCard />
 
       <Card className="settings-card">
         <h2>Copia de seguridad</h2>
