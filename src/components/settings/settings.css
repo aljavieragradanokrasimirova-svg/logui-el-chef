@@ -62,3 +62,8 @@
 
 .settings-key__buttons { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
 .settings-version { margin: 0; text-align: center; font-size: var(--fs-s); font-weight: 700; color: var(--c-cocoa-soft); }
+
+.settings-steps { margin: 0; padding-left: var(--sp-5); display: grid; gap: var(--sp-3); }
+.settings-steps li { display: grid; gap: var(--sp-2); justify-items: start; }
+.settings-steps li::marker { font-family: var(--font-title); color: var(--c-tomato); }
+.settings-steps li span { color: var(--c-cocoa-soft); font-size: var(--fs-s); }
