@@ -83,59 +83,122 @@
 .recipes-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--sp-3); }
 
 /* ---------- Leyendo una foto ---------- */
-.reading { display: grid; gap: var(--sp-3); }
-.reading__stage { display: grid; grid-template-columns: 112px 1fr; gap: var(--sp-3); align-items: stretch; }
+.reading { display: grid; justify-items: center; gap: var(--sp-4); text-align: center; }
+
+.reading__scene { position: relative; width: 210px; height: 176px; margin: var(--sp-2) 0 var(--sp-1); }
+.reading__polaroid {
+  position: absolute;
+  inset: 0 30px 0 0;
+  padding: 8px 8px 28px;
+  border: var(--line);
+  border-radius: 6px;
+  background: #FFFDF7;
+  box-shadow: 0 6px 0 var(--c-cocoa);
+  transform: rotate(-4deg);
+  animation: polaroid-in 420ms var(--ease-bounce) both, polaroid-float 3.2s ease-in-out 420ms infinite;
+}
 .reading__photo {
   position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 2px solid #4A2E22;
+  border-radius: 3px;
+  background: #FCEFB4;
+}
+.reading__photo img { display: block; width: 100%; height: 100%; object-fit: cover; animation: photo-in 300ms ease both; }
+.reading__placeholder {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(-45deg, #F6E7C8 0 10px, #FCEFB4 10px 20px);
+}
+/* Brillo diagonal que recorre la foto: «la está leyendo» */
+.reading__shine {
+  position: absolute;
+  inset: -40% -60%;
+  background: linear-gradient(105deg, transparent 42%, rgba(255, 255, 255, .75) 50%, transparent 58%);
+  transform: translateX(-60%);
+  animation: shine 2.2s ease-in-out infinite;
+  will-change: transform;
+}
+.reading__logui { position: absolute; right: -12px; bottom: -16px; animation: logui-peek 2.6s ease-in-out infinite; }
+
+.reading__steps {
+  display: grid;
+  gap: var(--sp-3);
+  width: 100%;
+  max-width: 260px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+.reading__step {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-weight: 700;
+  color: var(--c-cocoa-soft);
+  opacity: .7;
+  transition: color var(--dur-med) ease, opacity var(--dur-med) ease;
+}
+.reading__step--active, .reading__step--done { color: var(--c-ink); opacity: 1; }
+.reading__step--active { font-weight: 800; }
+.reading__dot {
   display: grid;
   place-items: center;
-  height: 140px;
-  overflow: hidden;
-  border: var(--line);
-  border-radius: var(--r-chip);
-  background: var(--c-butter-soft);
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--c-cream-deep);
+  border-radius: 50%;
+  color: #FFFFFF;
 }
-.reading__photo img { width: 100%; height: 100%; object-fit: cover; animation: reading-in var(--dur-med) ease both; }
-.reading__scan {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 26px;
-  background: linear-gradient(transparent, rgba(247, 215, 116, .75) 70%, var(--c-butter) 90%, transparent);
-  animation: reading-scan 1.8s ease-in-out infinite alternate;
-}
-.reading__sheet {
-  display: grid;
-  align-content: start;
-  gap: var(--sp-2);
-  padding: var(--sp-3);
-  border: var(--line);
-  border-radius: var(--r-chip);
-  background: var(--c-white);
-}
-.skeleton {
-  display: block;
-  height: 12px;
-  border-radius: var(--r-pill);
-  background: linear-gradient(90deg, var(--c-cream-deep) 25%, var(--c-cream) 45%, var(--c-cream-deep) 65%) 0 0 / 300% 100%;
-  animation: skeleton-shine 1.4s linear infinite;
-}
-.skeleton--title { width: 70%; height: 18px; margin-bottom: var(--sp-1); }
-.reading__line { animation: skeleton-shine 1.4s linear infinite, reading-in var(--dur-med) var(--ease-bounce) both; }
-.reading__line--step { height: 10px; margin-top: var(--sp-1); }
-.reading__bar { height: 10px; overflow: hidden; border: 2px solid var(--c-cocoa); border-radius: var(--r-pill); background: var(--c-cream-deep); }
+.reading__step--done .reading__dot { border-color: var(--c-mint); background: var(--c-mint); animation: dot-pop var(--dur-med) var(--ease-bounce); }
+/* Paso en curso: anillo que gira */
+.reading__step--active .reading__dot { border-top-color: var(--c-tomato); border-right-color: var(--c-tomato); animation: spin .9s linear infinite; }
+
+.reading__bar { width: 100%; height: 8px; overflow: hidden; border-radius: var(--r-pill); background: var(--c-cream-deep); }
 .reading__bar span {
   display: block;
   height: 100%;
-  background: var(--c-tomato);
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--c-butter), var(--c-tomato));
   transform-origin: left;
-  transition: transform 1s ease-out;
+  transition: transform 1s linear;
+  will-change: transform;
 }
-.reading__text { margin: 0; text-align: center; font-weight: 800; }
-.reading__secs { color: var(--c-cocoa-soft); font-weight: 700; font-variant-numeric: tabular-nums; }
-@keyframes reading-scan { from { transform: translateY(-26px); } to { transform: translateY(140px); } }
-@keyframes skeleton-shine { to { background-position: -150% 0; } }
-@keyframes reading-in { from { opacity: 0; transform: translateX(-8px); } }
-.reduce-motion .reading__scan, .reduce-motion .skeleton { animation: none; }
-@media (prefers-reduced-motion: reduce) { .reading__scan, .skeleton { animation: none; } }
+.reading__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  width: 100%;
+  margin: calc(-1 * var(--sp-2)) 0 0;
+  font-size: var(--fs-s);
+  font-weight: 700;
+  color: var(--c-cocoa-soft);
+  text-align: left;
+}
+.reading__secs { flex: none; font-variant-numeric: tabular-nums; }
+.reading__cancel {
+  min-height: 44px;
+  margin-top: calc(-1 * var(--sp-2));
+  padding: 0 var(--sp-4);
+  border: none;
+  background: none;
+  color: var(--c-cocoa-soft);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+@keyframes polaroid-in { from { transform: rotate(-14deg) translateY(30px) scale(.8); opacity: 0; } }
+@keyframes polaroid-float { 0%, 100% { transform: rotate(-4deg) translateY(0); } 50% { transform: rotate(-2.5deg) translateY(-4px); } }
+@keyframes photo-in { from { opacity: 0; } }
+@keyframes shine { 0% { transform: translateX(-60%); } 65%, 100% { transform: translateX(60%); } }
+@keyframes logui-peek { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-3px) rotate(3deg); } }
+@keyframes dot-pop { from { transform: scale(.5); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+.reduce-motion .reading *, .reduce-motion .reading { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { .reading * { animation: none !important; } }

@@ -17,7 +17,7 @@ const IGNORE = '.item__slide, input, textarea, select, dialog, [data-no-swipe], 
  * Gestos de pantalla con el dedo (solo táctil):
  * - en una pantalla de detalle, deslizar desde el borde izquierdo vuelve atrás (como en iOS);
  * - en las pantallas principales, deslizar a los lados cambia de pestaña.
- * La pantalla sigue un poco al dedo para que se note el gesto.
+ * Al volver, la pantalla sigue al dedo; el cambio de pestaña se hace al soltar, con un fundido.
  */
 export default function ScreenGestures() {
   const navigate = useNavigate()
@@ -72,19 +72,22 @@ export default function ScreenGestures() {
       }
       g.dx = dx
       g.last = { x: t.clientX, t: e.timeStamp }
-      move(g.mode === 'back' ? Math.max(0, dx) * 0.6 : dx * 0.25)
+      // Solo «volver» sigue al dedo; cambiar de pestaña no mueve nada hasta soltar (luego funde)
+      if (g.mode === 'back') move(Math.max(0, dx) * 0.6)
     }
 
     const onEnd = (e) => {
       const done = g
       g = null
       if (!done?.locked) return
-      release()
       const speed = Math.abs(done.dx) / Math.max(1, e.timeStamp - done.t)
       if (done.mode === 'back') {
-        if (done.dx < BACK_PX && !(done.dx > 40 && speed > FLICK_SPEED)) return
         const back = document.querySelector('.hero__back')?.getAttribute('href')
-        if (!back?.startsWith('#/')) return
+        if ((done.dx < BACK_PX && !(done.dx > 40 && speed > FLICK_SPEED)) || !back?.startsWith('#/')) {
+          release()
+          return
+        }
+        // Se va atrás desde donde está la pantalla (sin volver a su sitio antes): sin saltos
         haptic('tick')
         runTransition('back', () => navigate(back.slice(1)))
         return
@@ -98,7 +101,7 @@ export default function ScreenGestures() {
     }
 
     const onCancel = () => {
-      if (g?.locked) release()
+      if (g?.locked && g.mode === 'back') release()
       g = null
     }
 

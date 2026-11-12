@@ -115,11 +115,8 @@ export default function PhotoImport({ round = false }) {
         </ModalActions>
       </Modal>
 
-      <Modal open={status === 'reading'} onClose={cancel} title="Leyendo la receta…">
-        <ReadingProgress preview={preview} stage={stage} seconds={seconds} />
-        <ModalActions>
-          <Button size="small" onClick={cancel}>Cancelar</Button>
-        </ModalActions>
+      <Modal open={status === 'reading'} onClose={cancel} title="Leyendo la receta" className="reading-modal">
+        <ReadingProgress preview={preview} stage={stage} seconds={seconds} onCancel={cancel} />
       </Modal>
 
       <Modal open={status === 'error'} onClose={close} title="No se pudo leer la receta">
@@ -134,52 +131,60 @@ export default function PhotoImport({ round = false }) {
   )
 }
 
-/** Qué se le cuenta al usuario mientras espera, según los segundos (la IA no informa de su avance). */
-function stageText(stage, seconds) {
-  if (stage === 'prep') return 'Preparando la foto…'
-  if (seconds < 4) return 'Mirando la foto…'
-  if (seconds < 9) return 'Apuntando los ingredientes…'
-  if (seconds < 16) return 'Ordenando los pasos…'
-  return 'Repasando los detalles…'
+const STEPS = ['Preparar la foto', 'Leer los ingredientes', 'Ordenar los pasos']
+
+/** Paso en curso (0-2) según la etapa y los segundos: la IA no informa de su avance, así que se estima. */
+function currentStep(stage, seconds) {
+  if (stage === 'prep') return 0
+  return seconds < 7 ? 1 : 2
 }
 
 /**
- * Espera de la lectura: la foto con una línea que la recorre, una receta «en esqueleto» que se va
- * rellenando y una barra que avanza (estimada: rápida al principio y cada vez más lenta, sin llegar al final).
+ * Espera de la lectura: la foto como una polaroid con un brillo que la recorre, Logui asomado mirándola,
+ * los tres pasos con su estado y una barra que avanza de forma continua (estimada: nunca llega al final sola).
  */
-function ReadingProgress({ preview, stage, seconds }) {
-  const progress = stage === 'prep' ? 0.08 : 0.1 + 0.82 * (1 - Math.exp(-seconds / 9))
-  const lines = stage === 'prep' ? 0 : seconds < 3 ? 1 : seconds < 8 ? 2 : 3
+function ReadingProgress({ preview, stage, seconds, onCancel }) {
+  const step = currentStep(stage, seconds)
+  const progress = stage === 'prep' ? 0.06 : Math.min(0.94, 0.12 + 0.82 * (1 - Math.exp(-(seconds + 1) / 9)))
+  const slow = stage === 'wait' && seconds >= 20
   return (
     <div className="reading">
-      <div className="reading__stage">
-        <div className="reading__photo">
-          {preview ? <img src={preview} alt="" /> : <Logui mood="think" size={70} />}
-          <span className="reading__scan" aria-hidden="true" />
+      <div className="reading__scene">
+        <div className="reading__polaroid">
+          <div className="reading__photo">
+            {preview ? <img src={preview} alt="" /> : <span className="reading__placeholder" aria-hidden="true" />}
+            <span className="reading__shine" aria-hidden="true" />
+          </div>
         </div>
-        <div className="reading__sheet" aria-hidden="true">
-          <span className="skeleton skeleton--title" />
-          {lines >= 1 && <span className="skeleton reading__line" style={{ width: '80%' }} />}
-          {lines >= 2 && (
-            <>
-              <span className="skeleton reading__line" style={{ width: '65%' }} />
-              <span className="skeleton reading__line" style={{ width: '72%' }} />
-            </>
-          )}
-          {lines >= 3 && (
-            <>
-              <span className="skeleton reading__line reading__line--step" style={{ width: '92%' }} />
-              <span className="skeleton reading__line reading__line--step" style={{ width: '58%' }} />
-            </>
-          )}
-        </div>
+        <Logui mood="think" size={78} className="reading__logui" />
       </div>
+
+      <ol className="reading__steps">
+        {STEPS.map((label, i) => {
+          const state = i < step ? 'done' : i === step ? 'active' : 'todo'
+          return (
+            <li key={label} className={'reading__step reading__step--' + state}>
+              <span className="reading__dot" aria-hidden="true">
+                {state === 'done' && <UiIcon name="check" size={14} strokeWidth={4} />}
+              </span>
+              <span>{label}</span>
+              <span className="sr-only">{state === 'done' ? ' (hecho)' : state === 'active' ? ' (en curso)' : ''}</span>
+            </li>
+          )
+        })}
+      </ol>
+
       <div className="reading__bar" aria-hidden="true">
-        <span style={{ transform: `scaleX(${progress.toFixed(3)})` }} />
+        <span style={{ transform: 'scaleX(' + progress.toFixed(3) + ')' }} />
       </div>
-      <p className="reading__text" role="status">
-        {stageText(stage, seconds)} <span className="reading__secs">{seconds} s</span>
+      <p className="reading__meta" role="status">
+        <span>{slow ? 'Está tardando más de lo normal, ya casi…' : 'Suele tardar entre 5 y 20 segundos'}</span>
+        <span className="reading__secs">{seconds} s</span>
       </p>
+
+      <button type="button" className="reading__cancel" onClick={onCancel}>
+        Cancelar
+      </button>
     </div>
   )
 }

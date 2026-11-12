@@ -4,12 +4,9 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { prefersReducedMotion } from '../components/motion/useFlip.js'
 
 /**
- * Transiciones entre pantallas con la View Transitions API del navegador:
- * - entrar más adentro (lista → detalle) desliza desde la derecha; volver, desde la izquierda;
- * - entre pestañas, hacia el lado de la pestaña;
- * - la cabecera tomate y la barra de pestañas no se deslizan: la cabecera cambia de forma;
- * - al abrir una tarjeta marcada con `data-vt-expand`, la tarjeta crece hasta ser la cabecera.
- * Sin soporte (o con «reducir animaciones») se navega sin animación.
+ * Transiciones entre pantallas con la View Transitions API del navegador (CSS en styles/feel.css):
+ * entrar más adentro (lista → detalle) entra desde la derecha; volver, desde la izquierda; entre pestañas, fundido.
+ * La barra de pestañas no se mueve. Sin soporte (o con «reducir animaciones») se navega sin animación.
  */
 
 export const TABS = ['/', '/listas', '/recetas', '/ajustes']
@@ -39,23 +36,14 @@ export function transitionKind(from, to) {
 
 const supported = () => typeof document !== 'undefined' && typeof document.startViewTransition === 'function'
 
-/**
- * Ejecuta `update` (que cambia de pantalla) dentro de una transición. `source`: elemento que se convierte
- * en la cabecera de la pantalla nueva.
- */
-export function runTransition(kind, update, source = null) {
+/** Ejecuta `update` (que cambia de pantalla) dentro de una transición. */
+export function runTransition(kind, update) {
   if (!supported() || prefersReducedMotion()) {
     update()
     return
   }
   const root = document.documentElement
   root.dataset.vt = kind
-  if (source) {
-    // Solo puede haber un elemento con cada nombre: la cabecera vieja deja el suyo a la tarjeta
-    const oldHero = document.querySelector('.hero')
-    if (oldHero) oldHero.style.viewTransitionName = 'none'
-    source.style.viewTransitionName = 'hero'
-  }
   try {
     const transition = document.startViewTransition(() => flushSync(update))
     transition.finished.finally(() => {
@@ -103,8 +91,7 @@ export function ViewTransitions() {
       // El <Link> de React Router ve `defaultPrevented` y no navega: lo hacemos nosotros dentro de la transición
       e.preventDefault()
       if (to === current) return
-      const source = link.closest('[data-vt-expand]')
-      runTransition(transitionKind(current, to), () => navigate(to), source)
+      runTransition(transitionKind(current, to), () => navigate(to))
     }
     document.addEventListener('click', onClick, true)
     return () => document.removeEventListener('click', onClick, true)
