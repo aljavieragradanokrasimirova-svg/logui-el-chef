@@ -11,7 +11,7 @@ import { prefersReducedMotion } from '../components/motion/useFlip.js'
 
 export const TABS = ['/', '/listas', '/recetas', '/ajustes']
 
-const tabIndex = (path) => {
+export const tabIndex = (path) => {
   if (path === '/') return 0
   const index = TABS.findIndex((tab, i) => i > 0 && (path === tab || path.startsWith(`${tab}/`)))
   if (index !== -1) return index
@@ -88,6 +88,8 @@ export function ViewTransitions() {
       if (!link || link.target === '_blank' || link.hasAttribute('download')) return
       const to = link.getAttribute('href').slice(1)
       const current = window.location.hash.slice(1) || '/'
+      // Entre pestañas se encarga el carrusel (desliza hasta la página): no hay transición
+      if (TABS.includes(current) && TABS.includes(to)) return
       // El <Link> de React Router ve `defaultPrevented` y no navega: lo hacemos nosotros dentro de la transición
       e.preventDefault()
       if (to === current) return
