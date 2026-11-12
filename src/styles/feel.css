@@ -104,3 +104,28 @@ img, svg { -webkit-user-drag: none; }
 }
 @keyframes bubble-in { from { transform: scale(.4); opacity: 0; } }
 @keyframes bubble-out { to { transform: scale(.8); opacity: 0; } }
+
+/* ---------- Carrusel de pestañas (como las páginas del escritorio del móvil) ---------- */
+.pager {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior: contain; /* sin «atrás» del navegador ni rebote al llegar al final */
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.pager::-webkit-scrollbar { display: none; }
+.pager__page {
+  flex: 0 0 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scroll-snap-align: start;
+  scroll-snap-stop: always; /* un deslizamiento rápido pasa de una en una, no se salta páginas */
+  scrollbar-width: none;
+}
+.pager__page::-webkit-scrollbar { display: none; }

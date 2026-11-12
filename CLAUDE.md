@@ -28,3 +28,6 @@ Sensación y modo oscuro (`src/feel/`, `src/styles/feel.css`, `src/styles/dark.c
 no con `useNavigate`), confeti y avisos con «Deshacer» (`components/ui/Toast.jsx`; borrar no pide confirmación, se deshace).
 Colores: el texto usa `--c-ink` (y `--c-ink-on-light` sobre mantequilla/menta/pasillos), las líneas y sombras `--c-cocoa`,
 el texto sobre tomate `--c-on-accent`. Los dibujos llevan la clase `art` (o son `.logui`/`.kitchen`) y conservan la paleta de día.
+Pestañas: las cuatro pantallas principales viven juntas en un carrusel con scroll nativo y `scroll-snap` (`feel/TabPager.jsx`),
+como las páginas del escritorio del móvil; cada página tiene su propio scroll vertical. La ruta se actualiza al encajar y
+la pastilla de la barra sigue `--tab-pos`. Entre pestañas no hay View Transition; sí al entrar/salir de los detalles.

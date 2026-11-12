@@ -7,17 +7,12 @@ import { prefersReducedMotion } from '../components/motion/useFlip.js'
 
 const LOCK_PX = 12
 const BACK_PX = 80
-const TAB_PX = 70
 const FLICK_SPEED = 0.5 // px/ms
 
-/** Zonas donde el gesto de pantalla no debe empezar: filas deslizables, campos, ventanas… */
-const IGNORE = '.item__slide, input, textarea, select, dialog, [data-no-swipe], .toast'
 
 /**
- * Gestos de pantalla con el dedo (solo táctil):
- * - en una pantalla de detalle, deslizar desde el borde izquierdo vuelve atrás (como en iOS);
- * - en las pantallas principales, deslizar a los lados cambia de pestaña.
- * Al volver, la pantalla sigue al dedo; el cambio de pestaña se hace al soltar, con un fundido.
+ * En una pantalla de detalle, deslizar desde el borde izquierdo vuelve atrás (como en iOS), con la pantalla
+ * siguiendo al dedo. (Cambiar de pestaña deslizando lo hace el carrusel, `TabPager`.)
  */
 export default function ScreenGestures() {
   const navigate = useNavigate()
@@ -46,11 +41,9 @@ export default function ScreenGestures() {
     const onStart = (e) => {
       if (e.touches.length !== 1 || document.querySelector('dialog[open]')) return
       const t = e.touches[0]
-      const isTab = TABS.includes(pathname)
-      const fromEdge = t.clientX < EDGE_PX
-      if (!isTab && !fromEdge) return
-      if (!fromEdge && e.target.closest?.(IGNORE)) return
-      g = { x: t.clientX, y: t.clientY, t: e.timeStamp, dx: 0, mode: isTab ? 'tab' : 'back', locked: false }
+      // Las pestañas se pasan con el carrusel (TabPager); aquí solo «volver» desde el borde en los detalles
+      if (TABS.includes(pathname) || t.clientX >= EDGE_PX) return
+      g = { x: t.clientX, y: t.clientY, t: e.timeStamp, dx: 0, mode: 'back', locked: false }
     }
 
     const onMove = (e) => {
@@ -64,7 +57,7 @@ export default function ScreenGestures() {
           return
         }
         if (Math.abs(dx) < LOCK_PX || Math.abs(dx) < Math.abs(dy) * 1.5) return
-        if (g.mode === 'back' && dx < 0) {
+        if (dx < 0) {
           g = null
           return
         }
@@ -72,8 +65,7 @@ export default function ScreenGestures() {
       }
       g.dx = dx
       g.last = { x: t.clientX, t: e.timeStamp }
-      // Solo «volver» sigue al dedo; cambiar de pestaña no mueve nada hasta soltar (luego funde)
-      if (g.mode === 'back') move(Math.max(0, dx) * 0.6)
+      move(Math.max(0, dx) * 0.6)
     }
 
     const onEnd = (e) => {
@@ -81,27 +73,18 @@ export default function ScreenGestures() {
       g = null
       if (!done?.locked) return
       const speed = Math.abs(done.dx) / Math.max(1, e.timeStamp - done.t)
-      if (done.mode === 'back') {
-        const back = document.querySelector('.hero__back')?.getAttribute('href')
-        if ((done.dx < BACK_PX && !(done.dx > 40 && speed > FLICK_SPEED)) || !back?.startsWith('#/')) {
-          release()
-          return
-        }
-        // Se va atrás desde donde está la pantalla (sin volver a su sitio antes): sin saltos
-        haptic('tick')
-        runTransition('back', () => navigate(back.slice(1)))
+      const back = document.querySelector('.hero__back')?.getAttribute('href')
+      if ((done.dx < BACK_PX && !(done.dx > 40 && speed > FLICK_SPEED)) || !back?.startsWith('#/')) {
+        release()
         return
       }
-      if (Math.abs(done.dx) < TAB_PX && !(Math.abs(done.dx) > 40 && speed > FLICK_SPEED)) return
-      const index = TABS.indexOf(pathname)
-      const next = index + (done.dx < 0 ? 1 : -1)
-      if (next < 0 || next >= TABS.length) return
+      // Se va atrás desde donde está la pantalla (sin volver a su sitio antes): sin saltos
       haptic('tick')
-      runTransition(done.dx < 0 ? 'tab-right' : 'tab-left', () => navigate(TABS[next]))
+      runTransition('back', () => navigate(back.slice(1)))
     }
 
     const onCancel = () => {
-      if (g?.locked && g.mode === 'back') release()
+      if (g?.locked) release()
       g = null
     }
 
